@@ -1,0 +1,58 @@
+agent:
+  name: "Curiosity"
+  version: "0.1.0"
+
+openrouter:
+  base_url: "https://openrouter.ai/api/v1"
+  # Set your preferred models here
+  models:
+    main: "x-ai/grok-4.1-fast"
+    summarizer: "x-ai/grok-4.1-fast"
+    tournament: "x-ai/grok-4.1-fast"
+  temperature: 0.7
+  max_tokens: 4096
+
+context:
+  max_tokens: 128000
+  compaction_threshold: 0.85
+  preserve_recent_messages: 5
+  archive_on_compact: true
+
+tournament:
+  default_stages: [4, 3, 2]
+  default_debate_rounds: 2
+  max_parallel_agents: 8
+  timeout_per_agent_seconds: 300
+
+journal:
+  structured_path: "journal/structured"
+  freeform_path: "journal/freeform"
+
+workspace:
+  base_path: "workspace"
+  projects_path: "workspace/projects"
+  temp_path: "workspace/temp"
+  cleanup_temp_after_hours: 24
+
+sandbox:
+  root: "agent_sandbox"
+  tools_path: "agent_sandbox/tools"
+  projects_path: "agent_sandbox/projects"
+  temp_path: "agent_sandbox/temp"
+  todo_path: "agent_sandbox/todo.json"
+  protected_paths:
+    - "agent/"
+    - "app/"
+    - "config/"
+
+questions:
+  path: "questions/pending.json"
+  max_pending: 20
+
+server:
+  host: "127.0.0.1"
+  port: 8000
+
+logging:
+  level: "INFO"
+  file: "logs/agent.log"

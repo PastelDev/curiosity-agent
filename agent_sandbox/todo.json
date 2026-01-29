@@ -1,0 +1,75 @@
+{
+  "items": [
+    {
+      "id": "todo_55d2c795",
+      "title": "Initiate Tournament: Brainstorm Major Plot Hooks for Aurathia",
+      "description": "Create a multi-perspective tournament using code or tools to generate and vote on top 5 adventure starters, conflicts, and revolutions in the magical industrial solarpunk setting.",
+      "status": "pending",
+      "priority": "high",
+      "created_at": "2026-01-29T22:21:34.870073",
+      "updated_at": "2026-01-29T22:21:47.489289",
+      "due_date": null,
+      "parent_id": null,
+      "subtasks": [],
+      "tags": [],
+      "notes": ""
+    },
+    {
+      "id": "todo_2d82e93b",
+      "title": "Initiate Tournament: Brainstorm Iconic NPCs and Factions",
+      "description": "Tournament for generating diverse NPCs (heroes, villains, neutrals) and faction dynamics, with corruption twists. Select winners via simulated judging.",
+      "status": "pending",
+      "priority": "high",
+      "created_at": "2026-01-29T22:21:34.872073",
+      "updated_at": "2026-01-29T22:21:34.872073",
+      "due_date": null,
+      "parent_id": null,
+      "subtasks": [],
+      "tags": [],
+      "notes": ""
+    },
+    {
+      "id": "todo_1bbcb6ac",
+      "title": "Initiate Tournament: Refine World Map and Regions",
+      "description": "Generate variant maps or detail existing one; tournament for best region names, features, secrets (solarpunk vs. corrupt elements).",
+      "status": "pending",
+      "priority": "medium",
+      "created_at": "2026-01-29T22:21:34.876073",
+      "updated_at": "2026-01-29T22:21:34.876073",
+      "due_date": null,
+      "parent_id": null,
+      "subtasks": [],
+      "tags": [],
+      "notes": ""
+    },
+    {
+      "id": "todo_cb4f1d65",
+      "title": "Initiate Tournament: Develop Magical Technology Trees",
+      "description": "Brainstorm tech progressions: pure solar vs. tainted void hybrids. Tournament to rank viable inventions, balancing 1800s vibes with fantasy.",
+      "status": "pending",
+      "priority": "high",
+      "created_at": "2026-01-29T22:21:34.878074",
+      "updated_at": "2026-01-29T22:21:34.878074",
+      "due_date": null,
+      "parent_id": null,
+      "subtasks": [],
+      "tags": [],
+      "notes": ""
+    },
+    {
+      "id": "todo_acb13a5a",
+      "title": "Initiate Tournament: Character Creation Options Expansion",
+      "description": "Tournament for new races, classes, backgrounds tailored to solarpunk revolution theme.",
+      "status": "pending",
+      "priority": "medium",
+      "created_at": "2026-01-29T22:21:34.880146",
+      "updated_at": "2026-01-29T22:21:34.880146",
+      "due_date": null,
+      "parent_id": null,
+      "subtasks": [],
+      "tags": [],
+      "notes": ""
+    }
+  ],
+  "updated_at": "2026-01-29T22:21:47.490277"
+}

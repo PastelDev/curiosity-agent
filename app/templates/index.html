@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Curiosity Agent</title>
+  <meta name="description" content="Control interface for the Curiosity Agent">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/static/main.css">
+</head>
+<body>
+  <canvas id="starfield"></canvas>
+
+  <div class="page">
+    <nav class="top-nav">
+      <a class="logo" href="/">
+        <div class="logo-icon">CA</div>
+        <div class="logo-text">Curiosity<span>Agent</span></div>
+      </a>
+      <div class="nav-right">
+        <div class="status-chip" id="status-chip">
+          <span class="status-dot" id="status-dot"></span>
+          <span id="status-text">unknown</span>
+        </div>
+      </div>
+    </nav>
+
+    <header class="hero">
+      <div class="hero-text">
+        <div class="hero-badge">
+          <span class="pulse"></span>
+          Control Center
+        </div>
+        <h1>Curiosity Agent</h1>
+        <p class="tagline">Autonomous self-improving agent dashboard with real-time status and oversight.</p>
+      </div>
+      <div class="hero-actions">
+        <div class="control-bar">
+          <button class="btn btn-success" id="btn-start">Start</button>
+          <button class="btn btn-warning" id="btn-pause">Pause</button>
+          <button class="btn btn-danger" id="btn-stop">Stop</button>
+        </div>
+        <button class="btn btn-outline" id="btn-compact">Force Compact</button>
+        <button class="btn btn-outline" id="btn-restart">Restart</button>
+      </div>
+    </header>
+
+    <div class="tabs" id="tabs" role="tablist" aria-label="Dashboard Sections">
+      <button class="tab active" role="tab" data-tab="goal" aria-selected="true">Goal</button>
+      <button class="tab" role="tab" data-tab="todo">Todo</button>
+      <button class="tab" role="tab" data-tab="logs">Logs</button>
+      <button class="tab" role="tab" data-tab="tools">Tools</button>
+      <button class="tab" role="tab" data-tab="journal">Journal</button>
+      <button class="tab" role="tab" data-tab="questions">Questions</button>
+      <button class="tab" role="tab" data-tab="chat">Chat</button>
+    </div>
+
+    <div class="tab-panels">
+      <!-- Status sidebar - always visible -->
+      <aside class="status-sidebar">
+        <section class="panel status-panel">
+          <div class="panel-header">
+            <h2>Status</h2>
+            <span class="status-pill" id="status-pill">unknown</span>
+          </div>
+          <div class="status-list">
+            <div class="status-item">
+              <span class="label">Loop Count</span>
+              <span class="value mono" id="loop-count">0</span>
+            </div>
+            <div class="status-item">
+              <span class="label">Total Tokens</span>
+              <span class="value mono" id="total-tokens">0</span>
+            </div>
+            <div class="status-item">
+              <span class="label">Last Action</span>
+              <span class="value mono" id="last-action">-</span>
+            </div>
+          </div>
+          <div class="context-block">
+            <div class="context-labels">
+              <span>Context Usage</span>
+              <span id="context-value">0.0%</span>
+            </div>
+            <div class="context-meter">
+              <div class="context-fill" id="context-fill"></div>
+            </div>
+          </div>
+
+          <!-- Prompt Queue -->
+          <div class="prompt-queue-block">
+            <div class="prompt-queue-header">
+              <span>Prompt Queue</span>
+              <span class="badge" id="prompt-queue-count">0</span>
+            </div>
+            <div class="prompt-queue-list" id="prompt-queue-list">
+              <div class="prompt-queue-empty">No prompts queued</div>
+            </div>
+            <div class="prompt-queue-input">
+              <textarea class="input" id="prompt-queue-text" rows="2" placeholder="Queue a message for the agent..."></textarea>
+              <div class="prompt-queue-actions">
+                <button class="btn btn-primary btn-sm" id="prompt-queue-btn">Queue</button>
+                <label class="toggle">
+                  <input type="checkbox" id="prompt-priority-high">
+                  <span>High priority</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </section>
+      </aside>
+
+      <!-- Goal Tab -->
+      <section class="tab-panel active" role="tabpanel" data-tab-panel="goal">
+        <section class="panel goal-panel">
+          <div class="panel-header">
+            <h2>Current Goal</h2>
+            <button class="btn btn-ghost" id="goal-edit-btn">Edit</button>
+          </div>
+          <div id="goal-view">
+            <pre class="goal-content" id="goal-display"></pre>
+          </div>
+          <div class="is-hidden" id="goal-editor">
+            <textarea id="goal-edit" rows="12" placeholder="Enter your goal"></textarea>
+            <div class="goal-actions">
+              <button class="btn btn-primary" id="goal-save-btn">Save Goal</button>
+              <button class="btn btn-ghost" id="goal-cancel-btn">Cancel</button>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <!-- Todo Tab -->
+      <section class="tab-panel" role="tabpanel" data-tab-panel="todo">
+        <section class="panel todo-panel">
+          <div class="panel-header">
+            <h2>Agent Todo List</h2>
+            <div class="todo-stats">
+              <span class="todo-stat" id="todo-stat-pending">0 pending</span>
+              <span class="todo-stat" id="todo-stat-progress">0 in progress</span>
+              <span class="todo-stat" id="todo-stat-done">0 done</span>
+            </div>
+          </div>
+          <div class="todo-list" id="todo-list">
+            <div class="todo-empty">No tasks yet. The agent will add tasks as it works.</div>
+          </div>
+        </section>
+      </section>
+
+      <!-- Logs Tab -->
+      <section class="tab-panel" role="tabpanel" data-tab-panel="logs">
+        <section class="panel logs-panel">
+          <div class="panel-header">
+            <h2>Execution Logs</h2>
+            <div class="log-controls">
+              <div class="input-group">
+                <label for="logs-lines">Lines</label>
+                <select class="input select" id="logs-lines">
+                  <option value="100">100</option>
+                  <option value="200" selected>200</option>
+                  <option value="500">500</option>
+                  <option value="1000">1000</option>
+                </select>
+              </div>
+              <div class="input-group">
+                <label for="logs-level">Level</label>
+                <select class="input select" id="logs-level">
+                  <option value="">All</option>
+                  <option value="INFO">INFO</option>
+                  <option value="WARNING">WARNING</option>
+                  <option value="ERROR">ERROR</option>
+                </select>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="logs-auto" checked>
+                <span>Auto refresh</span>
+              </label>
+              <button class="btn btn-outline" id="logs-refresh">Refresh</button>
+            </div>
+          </div>
+          <div class="log-meta" id="logs-meta">No log data yet.</div>
+          <pre class="log-output" id="log-output"></pre>
+        </section>
+      </section>
+
+      <!-- Tools Tab -->
+      <section class="tab-panel" role="tabpanel" data-tab-panel="tools">
+        <section class="panel tools-panel">
+          <div class="panel-header">
+            <h2>Available Tools</h2>
+            <span class="badge">Live registry</span>
+          </div>
+          <div class="tools-list" id="tools-list"></div>
+        </section>
+      </section>
+
+      <!-- Journal Tab -->
+      <section class="tab-panel" role="tabpanel" data-tab-panel="journal">
+        <section class="panel journal-panel">
+          <div class="panel-header">
+            <h2>Knowledge Journal</h2>
+            <div class="input-row journal-search">
+              <input class="input" id="journal-search" type="text" placeholder="Search journal">
+              <button class="btn btn-outline" id="journal-search-btn">Search</button>
+            </div>
+          </div>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-value" id="stat-ideas">0</div>
+              <div class="stat-label">Ideas</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="stat-experiments">0</div>
+              <div class="stat-label">Experiments</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="stat-tools">0</div>
+              <div class="stat-label">Tools</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value" id="stat-failed">0</div>
+              <div class="stat-label">Failed</div>
+            </div>
+          </div>
+          <div class="entry-list" id="journal-entries"></div>
+        </section>
+      </section>
+
+      <!-- Questions Tab -->
+      <section class="tab-panel" role="tabpanel" data-tab-panel="questions">
+        <section class="panel questions-panel">
+          <div class="panel-header">
+            <h2>Pending Questions</h2>
+            <span class="badge" id="pending-count">0 pending</span>
+          </div>
+          <div class="stack" id="questions-pending">
+            <div class="questions-empty">No pending questions from the agent.</div>
+          </div>
+          <div class="panel-header" id="answered-section">
+            <h2>Recently Answered</h2>
+          </div>
+          <div class="status-list" id="questions-answered"></div>
+        </section>
+      </section>
+
+      <!-- Chat Tab -->
+      <section class="tab-panel" role="tabpanel" data-tab-panel="chat">
+        <section class="panel chat-panel">
+          <div class="panel-header">
+            <h2>Chat with Agent Context</h2>
+            <div class="chat-controls">
+              <button class="btn btn-primary" id="chat-new-btn">New Chat</button>
+              <button class="btn btn-ghost btn-sm" id="chat-delete-btn" title="Delete session">Delete</button>
+            </div>
+          </div>
+
+          <!-- Session selector -->
+          <div class="chat-sessions-bar">
+            <select class="input select" id="chat-session-select">
+              <option value="">Select a chat session...</option>
+            </select>
+          </div>
+
+          <!-- Chat messages area -->
+          <div class="chat-messages" id="chat-messages">
+            <div class="chat-empty">Create a new chat to start a conversation with the agent's current context.</div>
+          </div>
+
+          <!-- Chat input -->
+          <div class="chat-input-area">
+            <textarea class="input chat-input" id="chat-input" rows="2" placeholder="Type your message..." disabled></textarea>
+            <button class="btn btn-primary" id="chat-send-btn" disabled>Send</button>
+          </div>
+        </section>
+      </section>
+    </div>
+  </div>
+
+  <div class="modal" id="entry-modal" aria-hidden="true">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title" id="entry-modal-title">Journal Entry</div>
+        <button class="modal-close" id="entry-modal-close" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body" id="entry-modal-body"></div>
+    </div>
+  </div>
+
+  <div class="modal" id="restart-modal" aria-hidden="true">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">Restart Agent</div>
+        <button class="modal-close" id="restart-modal-close" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p class="section-note">Restart the agent loop. You can optionally provide a prompt that will be injected at the start of the new loop.</p>
+        <textarea class="input" id="restart-prompt" rows="4" placeholder="Optional: Enter a message for the agent..."></textarea>
+        <label class="toggle" style="margin-top: 0.75rem;">
+          <input type="checkbox" id="restart-keep-context">
+          <span>Keep current context (don't reset)</span>
+        </label>
+        <div class="goal-actions" style="margin-top: 1rem;">
+          <button class="btn btn-warning" id="restart-confirm-btn">Restart Agent</button>
+          <button class="btn btn-ghost" id="restart-cancel-btn">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/starfield.js"></script>
+  <script src="/static/dashboard.js"></script>
+</body>
+</html>

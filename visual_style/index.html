@@ -1,0 +1,127 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>STEMfy.gr - STEM for you</title>
+  <meta name="description" content="Interactive simulations of physics and mathematics. Explore, learn, create.">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="STEMfy.gr - STEM for you">
+  <meta property="og:description" content="Interactive simulations of physics and mathematics for educational purposes.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://pasteldev.github.io">
+  <meta property="og:image" content="https://pasteldev.github.io/assets/pfp.jpg">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="STEMfy.gr - STEM for you">
+  <meta name="twitter:description" content="Interactive simulations of physics and mathematics for educational purposes.">
+  <meta name="twitter:image" content="https://pasteldev.github.io/assets/pfp.jpg">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="assets/logo.png">
+  <meta name="theme-color" content="#b08af0">
+
+  <link rel="stylesheet" href="css/main.css">
+</head>
+
+<body>
+  <canvas id="starfield"></canvas>
+
+  <div class="page">
+    <nav>
+      <a href="index.html" class="logo">
+        <div class="logo-icon">
+          <img src="assets/logo.png" alt="STEMfy.gr logo">
+        </div>
+        <div class="logo-text">STEM<span>fy.gr</span></div>
+      </a>
+      <div class="nav-right">
+        <ul class="nav-links">
+          <li><a href="about.html">About</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+        <button class="settings-btn" id="settings-btn" aria-label="Toggle language" title="Toggle language">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="2" y1="12" x2="22" y2="12"></line>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+          </svg>
+        </button>
+      </div>
+    </nav>
+
+        <section class="hero">
+      <h1>STEM, for you.</h1>
+      <p class="tagline">
+        <strong>Three minds. One mission.</strong> Interactive simulations, scientific news and challenges that make learning impossible to ignore.
+      </p>
+
+      <div class="nav-cards">
+        <a href="simulations.html" class="nav-card">
+          <div class="icon"><img src="icons/rocket.png" alt="Simulations"></div>
+          <h3>Simulations</h3>
+          <p>Interactive visualizations of physics &amp; mathematics</p>
+        </a>
+
+        <a href="news.html" class="nav-card">
+          <div class="icon"><img src="icons/news.png" alt="News"></div>
+          <h3>News</h3>
+          <p>Latest scientific news, simple and understandable</p>
+        </a>
+
+        <a href="challenges.html" class="nav-card">
+          <div class="icon"><img src="icons/trophy.png" alt="Challenges"></div>
+          <h3>Challenges</h3>
+          <p>Test your knowledge &amp; compete</p>
+        </a>
+
+        <a href="posts.html" class="nav-card">
+          <div class="icon"><img src="assets/heart_icon.png" alt="Posts"></div>
+          <h3>Posts</h3>
+          <p>Thoughts, insights &amp; discoveries</p>
+        </a>
+      </div>
+    </section>
+
+    <footer>
+      <p>&copy; 2025 STEMfy.gr - Made with &#10084; by three curious students</p>
+      <div class="social-links">
+        <a href="https://instagram.com/stemfy.gr" target="_blank" rel="noopener" title="Instagram">
+          <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+        </a>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Settings Modal -->
+  <div class="settings-modal" id="settings-modal">
+    <div class="settings-modal-content">
+      <div class="settings-header">
+        <h2 id="settings-title">Settings</h2>
+        <button class="settings-close" id="settings-close" aria-label="Close">&times;</button>
+      </div>
+      <div class="settings-body">
+        <div class="settings-group">
+          <label for="language-select" id="language-label">Language</label>
+          <select id="language-select">
+            <option value="en">English</option>
+            <option value="el">Ελληνικά</option>
+          </select>
+        </div></div>
+    </div>
+  </div>
+
+  <script src="js/starfield.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/ui.js"></script>
+</body>
+</html>
+
+

@@ -1,0 +1,18 @@
+{
+  "entries": [
+    {
+      "id": "idea_40b299b1",
+      "entry_type": "idea",
+      "title": "Todo List for Brainstorming Tournaments",
+      "content": "Added todo items to kick off tournaments for key world-building areas. This leverages guidelines for complex problems. Next: Implement tournament mechanism (e.g., run_code for multi-agent sim, or create_tool).",
+      "tags": [
+        "tournaments",
+        "brainstorming",
+        "aurathia"
+      ],
+      "created_at": "2026-01-29T22:21:34.882145",
+      "metadata": {}
+    }
+  ],
+  "updated_at": "2026-01-29T22:21:34.882145"
+}
