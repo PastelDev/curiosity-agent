@@ -9,11 +9,18 @@
     tools: [],
     todos: { items: [], stats: {} },
     logs: { logs: [], total_lines: 0 },
+    enhancedLogs: [],
     activeTab: 'goal',
     queuedPrompts: [],
     chatSessions: [],
     currentChatSession: null,
-    chatMessages: []
+    chatMessages: [],
+    tournaments: [],
+    currentTournament: null,
+    currentContainer: null,
+    files: [],
+    currentFile: null,
+    logViewMode: 'standard' // 'standard' or 'enhanced'
   };
 
   const ui = {
@@ -85,7 +92,43 @@
     logsLines: document.getElementById('logs-lines'),
     logsLevel: document.getElementById('logs-level'),
     logsAuto: document.getElementById('logs-auto'),
-    logsRefresh: document.getElementById('logs-refresh')
+    logsRefresh: document.getElementById('logs-refresh'),
+    // Enhanced logs
+    logsStandardBtn: document.getElementById('logs-standard-btn'),
+    logsEnhancedBtn: document.getElementById('logs-enhanced-btn'),
+    enhancedLogs: document.getElementById('enhanced-logs'),
+    enhancedLogsList: document.getElementById('enhanced-logs-list'),
+    // Tournament elements
+    tournamentCreateBtn: document.getElementById('tournament-create-btn'),
+    tournamentCreateForm: document.getElementById('tournament-create-form'),
+    tournamentTopic: document.getElementById('tournament-topic'),
+    tournamentStages: document.getElementById('tournament-stages'),
+    tournamentRounds: document.getElementById('tournament-rounds'),
+    tournamentSubmitBtn: document.getElementById('tournament-submit-btn'),
+    tournamentCancelBtn: document.getElementById('tournament-cancel-btn'),
+    tournamentList: document.getElementById('tournament-list'),
+    tournamentDetail: document.getElementById('tournament-detail'),
+    tournamentBackBtn: document.getElementById('tournament-back-btn'),
+    tournamentDetailTitle: document.getElementById('tournament-detail-title'),
+    tournamentDetailStatus: document.getElementById('tournament-detail-status'),
+    tournamentDetailTopic: document.getElementById('tournament-detail-topic'),
+    synthesisRounds: document.getElementById('synthesis-rounds'),
+    finalFilesSection: document.getElementById('final-files-section'),
+    finalFilesList: document.getElementById('final-files-list'),
+    // Container detail
+    containerDetail: document.getElementById('container-detail'),
+    containerBackBtn: document.getElementById('container-back-btn'),
+    containerDetailTitle: document.getElementById('container-detail-title'),
+    containerDetailStatus: document.getElementById('container-detail-status'),
+    containerLogs: document.getElementById('container-logs'),
+    containerFiles: document.getElementById('container-files'),
+    containerRevealed: document.getElementById('container-revealed'),
+    // Files tab
+    fileTree: document.getElementById('file-tree'),
+    filePreviewName: document.getElementById('file-preview-name'),
+    filePreviewMeta: document.getElementById('file-preview-meta'),
+    filePreviewContent: document.getElementById('file-preview-content'),
+    filesRefresh: document.getElementById('files-refresh')
   };
 
   let logsAutoRefreshInterval = null;
@@ -220,6 +263,12 @@
         break;
       case 'chat':
         fetchChatSessions();
+        break;
+      case 'tournament':
+        fetchTournaments();
+        break;
+      case 'files':
+        fetchFiles();
         break;
     }
   }
@@ -885,6 +934,464 @@
     loadChatSession(null);
   }
 
+  // ==================== Tournaments ====================
+
+  async function fetchTournaments() {
+    try {
+      const res = await fetch('/api/tournaments');
+      if (!res.ok) return;
+      const data = await res.json();
+      state.tournaments = data.tournaments || [];
+      renderTournaments();
+    } catch (e) {
+      console.error('Failed to fetch tournaments:', e);
+    }
+  }
+
+  function renderTournaments() {
+    if (!ui.tournamentList) return;
+
+    if (state.currentTournament) {
+      // Detail view is shown
+      return;
+    }
+
+    if (state.tournaments.length === 0) {
+      ui.tournamentList.innerHTML = '<div class="tournament-empty">No tournaments yet. Create one to start collaborative problem solving.</div>';
+      return;
+    }
+
+    ui.tournamentList.innerHTML = state.tournaments.map(t => `
+      <div class="tournament-card" data-id="${t.id}">
+        <div class="tournament-card-header">
+          <span class="tournament-card-title">${t.id.substring(0, 20)}</span>
+          <span class="status-pill status-${t.status}">${t.status}</span>
+        </div>
+        <div class="tournament-card-topic">${escapeHtml(t.topic)}</div>
+        <div class="tournament-card-meta">
+          <span>Stages: ${t.stages ? t.stages.join(' → ') : 'N/A'}</span>
+          <span>Containers: ${t.container_count || 0}</span>
+        </div>
+      </div>
+    `).join('');
+
+    // Add click handlers
+    ui.tournamentList.querySelectorAll('.tournament-card').forEach(card => {
+      card.addEventListener('click', () => loadTournamentDetail(card.dataset.id));
+    });
+  }
+
+  async function loadTournamentDetail(tournamentId) {
+    try {
+      const res = await fetch(`/api/tournaments/${tournamentId}`);
+      if (!res.ok) return;
+      state.currentTournament = await res.json();
+      state.currentContainer = null;
+      renderTournamentDetail();
+    } catch (e) {
+      console.error('Failed to load tournament:', e);
+    }
+  }
+
+  function renderTournamentDetail() {
+    const t = state.currentTournament;
+    if (!t) return;
+
+    // Hide list, show detail
+    if (ui.tournamentList) ui.tournamentList.classList.add('is-hidden');
+    if (ui.tournamentCreateForm) ui.tournamentCreateForm.classList.add('is-hidden');
+    if (ui.tournamentDetail) ui.tournamentDetail.classList.remove('is-hidden');
+
+    if (ui.tournamentDetailTitle) ui.tournamentDetailTitle.textContent = t.id;
+    if (ui.tournamentDetailStatus) {
+      ui.tournamentDetailStatus.textContent = t.status;
+      ui.tournamentDetailStatus.className = `status-pill status-${t.status}`;
+    }
+    if (ui.tournamentDetailTopic) ui.tournamentDetailTopic.textContent = t.topic;
+
+    // Render synthesis rounds
+    if (ui.synthesisRounds) {
+      const rounds = t.synthesis_rounds || [];
+      if (rounds.length === 0) {
+        ui.synthesisRounds.innerHTML = '<div class="section-note">No rounds executed yet.</div>';
+      } else {
+        ui.synthesisRounds.innerHTML = rounds.map(round => `
+          <div class="synthesis-round">
+            <div class="synthesis-round-header">
+              <h4>Round ${round.round_number}</h4>
+              <span class="status-pill status-${round.status}">${round.status}</span>
+            </div>
+            <div class="synthesis-round-containers">
+              ${(round.containers || []).map(c => `
+                <div class="container-card" data-container-id="${c.id}">
+                  <div class="container-card-header">
+                    <span class="container-card-id">${c.id.substring(0, 12)}</span>
+                    <span class="status-pill status-${c.status}">${c.status}</span>
+                  </div>
+                  <div class="container-card-meta">
+                    Files: ${c.revealed_files ? c.revealed_files.length : 0} revealed
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `).join('');
+
+        // Add click handlers to containers
+        ui.synthesisRounds.querySelectorAll('.container-card').forEach(card => {
+          card.addEventListener('click', () => loadContainerDetail(card.dataset.containerId));
+        });
+      }
+    }
+
+    // Render final files
+    if (ui.finalFilesSection && ui.finalFilesList) {
+      const files = t.final_files || [];
+      if (files.length === 0) {
+        ui.finalFilesSection.classList.add('is-hidden');
+      } else {
+        ui.finalFilesSection.classList.remove('is-hidden');
+        ui.finalFilesList.innerHTML = files.map(f => `
+          <div class="final-file-card" data-filename="${f.filename}">
+            <div class="final-file-name">${f.filename}</div>
+            <div class="final-file-desc">${f.description || 'No description'}</div>
+          </div>
+        `).join('');
+
+        // Add click handlers for file preview
+        ui.finalFilesList.querySelectorAll('.final-file-card').forEach(card => {
+          card.addEventListener('click', () => showFinalFile(card.dataset.filename));
+        });
+      }
+    }
+  }
+
+  function showFinalFile(filename) {
+    const t = state.currentTournament;
+    if (!t) return;
+
+    const file = t.final_files.find(f => f.filename === filename);
+    if (!file) return;
+
+    // Show in modal
+    if (ui.entryModalTitle) ui.entryModalTitle.textContent = file.filename;
+    if (ui.entryModalBody) {
+      ui.entryModalBody.innerHTML = `<pre style="white-space: pre-wrap;">${escapeHtml(file.content)}</pre>`;
+    }
+    if (ui.entryModal) ui.entryModal.classList.add('active');
+  }
+
+  async function loadContainerDetail(containerId) {
+    const t = state.currentTournament;
+    if (!t) return;
+
+    try {
+      const res = await fetch(`/api/tournaments/${t.id}/containers/${containerId}`);
+      if (!res.ok) return;
+      state.currentContainer = await res.json();
+      renderContainerDetail();
+    } catch (e) {
+      console.error('Failed to load container:', e);
+    }
+  }
+
+  function renderContainerDetail() {
+    const c = state.currentContainer;
+    if (!c) return;
+
+    if (ui.containerDetail) ui.containerDetail.classList.remove('is-hidden');
+    if (ui.containerDetailTitle) ui.containerDetailTitle.textContent = c.id;
+    if (ui.containerDetailStatus) {
+      ui.containerDetailStatus.textContent = c.status;
+      ui.containerDetailStatus.className = `status-pill status-${c.status}`;
+    }
+
+    // Render logs
+    if (ui.containerLogs) {
+      const logs = c.logs || [];
+      if (logs.length === 0) {
+        ui.containerLogs.innerHTML = '<div class="section-note">No logs yet.</div>';
+      } else {
+        ui.containerLogs.innerHTML = logs.map(log => `
+          <div class="container-log-entry">
+            <div class="container-log-time">${formatTime(log.timestamp)}</div>
+            <div class="container-log-message">${escapeHtml(log.message)}</div>
+            ${log.description ? `<div class="container-log-description">${escapeHtml(log.description)}</div>` : ''}
+          </div>
+        `).join('');
+      }
+    }
+
+    // Render revealed files
+    if (ui.containerRevealed) {
+      const files = c.revealed_files || [];
+      if (files.length === 0) {
+        ui.containerRevealed.innerHTML = '<div class="section-note">No files revealed yet.</div>';
+      } else {
+        ui.containerRevealed.innerHTML = files.map(f => `
+          <div class="container-file-item" data-filename="${f.filename}">
+            <div class="container-file-name">${f.filename}</div>
+            ${f.description ? `<div class="container-file-size">${f.description}</div>` : ''}
+          </div>
+        `).join('');
+      }
+    }
+
+    // Setup container tab switching
+    setupContainerTabs();
+  }
+
+  function setupContainerTabs() {
+    const tabs = document.querySelectorAll('.container-tab');
+    const panels = document.querySelectorAll('.container-tab-panel');
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const target = tab.dataset.containerTab;
+
+        tabs.forEach(t => t.classList.remove('active'));
+        panels.forEach(p => p.classList.remove('active'));
+
+        tab.classList.add('active');
+        const panel = document.querySelector(`[data-container-panel="${target}"]`);
+        if (panel) panel.classList.add('active');
+      });
+    });
+  }
+
+  function backToTournamentList() {
+    state.currentTournament = null;
+    state.currentContainer = null;
+    if (ui.tournamentDetail) ui.tournamentDetail.classList.add('is-hidden');
+    if (ui.tournamentList) ui.tournamentList.classList.remove('is-hidden');
+    fetchTournaments();
+  }
+
+  function backToRounds() {
+    state.currentContainer = null;
+    if (ui.containerDetail) ui.containerDetail.classList.add('is-hidden');
+  }
+
+  function showTournamentCreateForm() {
+    if (ui.tournamentCreateForm) ui.tournamentCreateForm.classList.remove('is-hidden');
+  }
+
+  function hideTournamentCreateForm() {
+    if (ui.tournamentCreateForm) ui.tournamentCreateForm.classList.add('is-hidden');
+    if (ui.tournamentTopic) ui.tournamentTopic.value = '';
+    if (ui.tournamentStages) ui.tournamentStages.value = '4, 3, 2';
+    if (ui.tournamentRounds) ui.tournamentRounds.value = '2';
+  }
+
+  async function createTournament() {
+    const topic = ui.tournamentTopic ? ui.tournamentTopic.value.trim() : '';
+    const stagesStr = ui.tournamentStages ? ui.tournamentStages.value.trim() : '4, 3, 2';
+    const debateRounds = ui.tournamentRounds ? parseInt(ui.tournamentRounds.value) : 2;
+
+    if (!topic) {
+      alert('Please enter a topic for the tournament.');
+      return;
+    }
+
+    const stages = stagesStr.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n) && n > 0);
+    if (stages.length === 0) {
+      alert('Please enter valid stages (e.g., 4, 3, 2)');
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/tournaments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          topic,
+          stages,
+          debate_rounds: debateRounds,
+          auto_start: true
+        })
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        alert('Failed to create tournament: ' + (err.detail || 'Unknown error'));
+        return;
+      }
+
+      const data = await res.json();
+      hideTournamentCreateForm();
+      loadTournamentDetail(data.tournament_id);
+    } catch (e) {
+      console.error('Failed to create tournament:', e);
+      alert('Failed to create tournament: ' + e.message);
+    }
+  }
+
+  function formatTime(isoString) {
+    if (!isoString) return '';
+    const date = new Date(isoString);
+    return date.toLocaleTimeString();
+  }
+
+  // ==================== Files Tab ====================
+
+  async function fetchFiles() {
+    try {
+      const res = await fetch('/api/files/main');
+      if (!res.ok) return;
+      const data = await res.json();
+      state.files = data.files || [];
+      renderFileTree();
+    } catch (e) {
+      console.error('Failed to fetch files:', e);
+    }
+  }
+
+  function renderFileTree() {
+    if (!ui.fileTree) return;
+
+    if (state.files.length === 0) {
+      ui.fileTree.innerHTML = '<div class="file-empty">No files yet.</div>';
+      return;
+    }
+
+    // Group files by directory
+    const filesByDir = {};
+    state.files.forEach(file => {
+      const parts = file.path.split('/');
+      const dir = parts.length > 1 ? parts.slice(0, -1).join('/') : '';
+      if (!filesByDir[dir]) filesByDir[dir] = [];
+      filesByDir[dir].push(file);
+    });
+
+    // Render flat list for now
+    ui.fileTree.innerHTML = state.files.map(file => {
+      const icon = getFileIcon(file.extension);
+      const sizeStr = formatFileSize(file.size);
+      return `
+        <div class="file-tree-item" data-path="${file.path}">
+          <span class="file-tree-item-icon">${icon}</span>
+          <span class="file-tree-item-name">${file.path}</span>
+          <span class="file-tree-item-size">${sizeStr}</span>
+        </div>
+      `;
+    }).join('');
+
+    // Add click handlers
+    ui.fileTree.querySelectorAll('.file-tree-item').forEach(item => {
+      item.addEventListener('click', () => loadFilePreview(item.dataset.path));
+    });
+  }
+
+  function getFileIcon(extension) {
+    const icons = {
+      '.md': '📄',
+      '.py': '🐍',
+      '.js': '📜',
+      '.json': '{}',
+      '.html': '🌐',
+      '.css': '🎨',
+      '.txt': '📝',
+      '.yaml': '⚙️',
+      '.yml': '⚙️'
+    };
+    return icons[extension] || '📁';
+  }
+
+  function formatFileSize(bytes) {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+  }
+
+  async function loadFilePreview(filePath) {
+    // Update active state
+    ui.fileTree.querySelectorAll('.file-tree-item').forEach(item => {
+      item.classList.toggle('active', item.dataset.path === filePath);
+    });
+
+    try {
+      const res = await fetch(`/api/files/main/${encodeURIComponent(filePath)}`);
+      if (!res.ok) {
+        if (ui.filePreviewContent) ui.filePreviewContent.textContent = 'Failed to load file.';
+        return;
+      }
+
+      const data = await res.json();
+      state.currentFile = data;
+
+      if (ui.filePreviewName) ui.filePreviewName.textContent = data.path;
+      if (ui.filePreviewMeta) ui.filePreviewMeta.textContent = formatFileSize(data.size);
+      if (ui.filePreviewContent) ui.filePreviewContent.textContent = data.content;
+    } catch (e) {
+      console.error('Failed to load file:', e);
+      if (ui.filePreviewContent) ui.filePreviewContent.textContent = 'Error loading file: ' + e.message;
+    }
+  }
+
+  // ==================== Enhanced Logs ====================
+
+  async function fetchEnhancedLogs() {
+    try {
+      const res = await fetch('/api/logs/enhanced?limit=100');
+      if (!res.ok) return;
+      const data = await res.json();
+      state.enhancedLogs = data.logs || [];
+      renderEnhancedLogs();
+    } catch (e) {
+      console.error('Failed to fetch enhanced logs:', e);
+    }
+  }
+
+  function renderEnhancedLogs() {
+    if (!ui.enhancedLogsList) return;
+
+    if (state.enhancedLogs.length === 0) {
+      ui.enhancedLogsList.innerHTML = '<div class="section-note">No enhanced logs yet.</div>';
+      return;
+    }
+
+    ui.enhancedLogsList.innerHTML = state.enhancedLogs.map(log => {
+      let toolHtml = '';
+      if (log.tool_name) {
+        toolHtml = `
+          <div class="enhanced-log-tool">
+            <div class="enhanced-log-tool-name">${log.tool_name}</div>
+            ${log.tool_args ? `<div class="enhanced-log-tool-args">${JSON.stringify(log.tool_args, null, 2).substring(0, 200)}</div>` : ''}
+          </div>
+        `;
+      }
+
+      return `
+        <div class="enhanced-log-entry">
+          <div class="enhanced-log-header">
+            <span class="enhanced-log-category ${log.category}">${log.category}</span>
+            <span class="enhanced-log-time">${formatTime(log.timestamp)}</span>
+          </div>
+          <div class="enhanced-log-message">${escapeHtml(log.message)}</div>
+          ${log.description ? `<div class="enhanced-log-description">${escapeHtml(log.description)}</div>` : ''}
+          ${toolHtml}
+        </div>
+      `;
+    }).join('');
+  }
+
+  function switchLogView(mode) {
+    state.logViewMode = mode;
+
+    if (ui.logsStandardBtn) ui.logsStandardBtn.classList.toggle('active', mode === 'standard');
+    if (ui.logsEnhancedBtn) ui.logsEnhancedBtn.classList.toggle('active', mode === 'enhanced');
+
+    if (mode === 'standard') {
+      if (ui.logOutput) ui.logOutput.classList.remove('is-hidden');
+      if (ui.enhancedLogs) ui.enhancedLogs.classList.add('is-hidden');
+      fetchLogs();
+    } else {
+      if (ui.logOutput) ui.logOutput.classList.add('is-hidden');
+      if (ui.enhancedLogs) ui.enhancedLogs.classList.remove('is-hidden');
+      fetchEnhancedLogs();
+    }
+  }
+
   // ==================== WebSocket ====================
 
   function connectWebSocket() {
@@ -1014,6 +1521,20 @@
       ui.logsAuto.addEventListener('change', setupLogsAutoRefresh);
       setupLogsAutoRefresh();
     }
+
+    // Log view toggle
+    if (ui.logsStandardBtn) ui.logsStandardBtn.addEventListener('click', () => switchLogView('standard'));
+    if (ui.logsEnhancedBtn) ui.logsEnhancedBtn.addEventListener('click', () => switchLogView('enhanced'));
+
+    // Tournament controls
+    if (ui.tournamentCreateBtn) ui.tournamentCreateBtn.addEventListener('click', showTournamentCreateForm);
+    if (ui.tournamentCancelBtn) ui.tournamentCancelBtn.addEventListener('click', hideTournamentCreateForm);
+    if (ui.tournamentSubmitBtn) ui.tournamentSubmitBtn.addEventListener('click', createTournament);
+    if (ui.tournamentBackBtn) ui.tournamentBackBtn.addEventListener('click', backToTournamentList);
+    if (ui.containerBackBtn) ui.containerBackBtn.addEventListener('click', backToRounds);
+
+    // Files controls
+    if (ui.filesRefresh) ui.filesRefresh.addEventListener('click', fetchFiles);
   }
 
   if (document.readyState === 'loading') {

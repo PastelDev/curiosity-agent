@@ -52,7 +52,9 @@
     <div class="tabs" id="tabs" role="tablist" aria-label="Dashboard Sections">
       <button class="tab active" role="tab" data-tab="goal" aria-selected="true">Goal</button>
       <button class="tab" role="tab" data-tab="todo">Todo</button>
+      <button class="tab" role="tab" data-tab="tournament">Tournament</button>
       <button class="tab" role="tab" data-tab="logs">Logs</button>
+      <button class="tab" role="tab" data-tab="files">Files</button>
       <button class="tab" role="tab" data-tab="tools">Tools</button>
       <button class="tab" role="tab" data-tab="journal">Journal</button>
       <button class="tab" role="tab" data-tab="questions">Questions</button>
@@ -151,6 +153,96 @@
         </section>
       </section>
 
+      <!-- Tournament Tab -->
+      <section class="tab-panel" role="tabpanel" data-tab-panel="tournament">
+        <section class="panel tournament-panel">
+          <div class="panel-header">
+            <h2>Tournaments</h2>
+            <div class="tournament-actions">
+              <button class="btn btn-primary" id="tournament-create-btn">New Tournament</button>
+            </div>
+          </div>
+
+          <!-- Tournament Creation Form -->
+          <div class="tournament-create-form is-hidden" id="tournament-create-form">
+            <h3>Create Tournament</h3>
+            <div class="input-group">
+              <label for="tournament-topic">Topic / Task</label>
+              <textarea class="input" id="tournament-topic" rows="3" placeholder="Describe what the agents should work on..."></textarea>
+            </div>
+            <div class="input-row">
+              <div class="input-group">
+                <label for="tournament-stages">Stages (agents per round)</label>
+                <input class="input" id="tournament-stages" type="text" placeholder="4, 3, 2" value="4, 3, 2">
+              </div>
+              <div class="input-group">
+                <label for="tournament-rounds">Debate Rounds</label>
+                <input class="input" id="tournament-rounds" type="number" value="2" min="1" max="5">
+              </div>
+            </div>
+            <div class="goal-actions">
+              <button class="btn btn-success" id="tournament-submit-btn">Create & Start</button>
+              <button class="btn btn-ghost" id="tournament-cancel-btn">Cancel</button>
+            </div>
+          </div>
+
+          <!-- Tournament List -->
+          <div class="tournament-list" id="tournament-list">
+            <div class="tournament-empty">No tournaments yet. Create one to start collaborative problem solving.</div>
+          </div>
+
+          <!-- Tournament Detail View -->
+          <div class="tournament-detail is-hidden" id="tournament-detail">
+            <div class="tournament-detail-header">
+              <button class="btn btn-ghost" id="tournament-back-btn">&larr; Back</button>
+              <h3 id="tournament-detail-title">Tournament</h3>
+              <span class="status-pill" id="tournament-detail-status">pending</span>
+            </div>
+            <div class="tournament-detail-topic" id="tournament-detail-topic"></div>
+
+            <!-- Synthesis Rounds -->
+            <div class="synthesis-rounds" id="synthesis-rounds"></div>
+
+            <!-- Final Files -->
+            <div class="final-files-section" id="final-files-section">
+              <h4>Final Output Files</h4>
+              <div class="final-files-list" id="final-files-list"></div>
+            </div>
+
+            <!-- Container Detail Modal Content -->
+            <div class="container-detail is-hidden" id="container-detail">
+              <div class="container-detail-header">
+                <button class="btn btn-ghost" id="container-back-btn">&larr; Back to Round</button>
+                <h4 id="container-detail-title">Container</h4>
+                <span class="status-pill" id="container-detail-status"></span>
+              </div>
+
+              <!-- Container Tabs -->
+              <div class="container-tabs">
+                <button class="container-tab active" data-container-tab="logs">Logs</button>
+                <button class="container-tab" data-container-tab="files">Files</button>
+                <button class="container-tab" data-container-tab="revealed">Revealed</button>
+              </div>
+
+              <!-- Container Logs -->
+              <div class="container-tab-panel active" data-container-panel="logs">
+                <div class="container-logs" id="container-logs"></div>
+              </div>
+
+              <!-- Container Files -->
+              <div class="container-tab-panel" data-container-panel="files">
+                <div class="container-files" id="container-files"></div>
+              </div>
+
+              <!-- Revealed Files -->
+              <div class="container-tab-panel" data-container-panel="revealed">
+                <div class="container-revealed" id="container-revealed"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </section>
+
       <!-- Logs Tab -->
       <section class="tab-panel" role="tabpanel" data-tab-panel="logs">
         <section class="panel logs-panel">
@@ -182,8 +274,53 @@
               <button class="btn btn-outline" id="logs-refresh">Refresh</button>
             </div>
           </div>
+
+          <!-- Log View Toggle -->
+          <div class="log-view-toggle">
+            <button class="btn btn-ghost btn-sm active" id="logs-standard-btn">Standard</button>
+            <button class="btn btn-ghost btn-sm" id="logs-enhanced-btn">Enhanced</button>
+          </div>
+
           <div class="log-meta" id="logs-meta">No log data yet.</div>
+
+          <!-- Standard Logs -->
           <pre class="log-output" id="log-output"></pre>
+
+          <!-- Enhanced Logs -->
+          <div class="enhanced-logs is-hidden" id="enhanced-logs">
+            <div class="enhanced-logs-list" id="enhanced-logs-list"></div>
+          </div>
+        </section>
+      </section>
+
+      <!-- Files Tab -->
+      <section class="tab-panel" role="tabpanel" data-tab-panel="files">
+        <section class="panel files-panel">
+          <div class="panel-header">
+            <h2>Agent Files</h2>
+            <div class="file-controls">
+              <button class="btn btn-outline" id="files-refresh">Refresh</button>
+            </div>
+          </div>
+
+          <div class="files-layout">
+            <!-- File Tree -->
+            <div class="file-tree-container">
+              <h3>File Browser</h3>
+              <div class="file-tree" id="file-tree">
+                <div class="file-empty">No files yet.</div>
+              </div>
+            </div>
+
+            <!-- File Preview -->
+            <div class="file-preview-container">
+              <div class="file-preview-header">
+                <h3 id="file-preview-name">Select a file</h3>
+                <span class="file-preview-meta" id="file-preview-meta"></span>
+              </div>
+              <pre class="file-preview-content" id="file-preview-content">Select a file from the tree to preview its contents.</pre>
+            </div>
+          </div>
         </section>
       </section>
 
