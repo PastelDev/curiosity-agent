@@ -76,11 +76,17 @@ class TournamentAgent(BaseAgent):
         self.revealed_path.mkdir(parents=True, exist_ok=True)
         self.logs_path.mkdir(parents=True, exist_ok=True)
 
+        # Set workspace path for code execution (from BaseAgent)
+        self._workspace_path = self.workspace
+
         # Track revealed files
         self.revealed_files: list[dict] = []
 
         # Register tournament-specific tools
         self._register_tournament_tools()
+
+        # Enable Python code execution (sandboxed to workspace)
+        self._register_code_execution_tool()
 
     def _register_tournament_tools(self):
         """Register tools specific to tournament agents."""
@@ -279,8 +285,9 @@ class TournamentAgent(BaseAgent):
 2. Create files to document your work:
    - Create a main .md file explaining your reasoning and approach
    - Create any code files or additional documentation as needed
-3. Use the 'reveal' tool to share files you want to contribute to the synthesis
-4. When you're done, call 'complete_task' to signal completion
+3. You can use 'run_python' to execute Python code in your workspace
+4. Use the 'reveal' tool to share files you want to contribute to the synthesis
+5. When you're done, call 'complete_task' to signal completion
 
 ## Context Management
 Your context will be automatically compacted when it gets too full.
@@ -322,8 +329,9 @@ Review the contributions from the previous round and synthesize the best ideas i
 3. Synthesize and improve upon them
 4. Create new files that combine the best elements
 5. Add your own insights and improvements
-6. Use the 'reveal' tool to share your synthesized outputs
-7. When done, call 'complete_task' to signal completion
+6. You can use 'run_python' to execute Python code in your workspace
+7. Use the 'reveal' tool to share your synthesized outputs
+8. When done, call 'complete_task' to signal completion
 
 ## Context Management
 Your context will be automatically compacted when it gets too full.

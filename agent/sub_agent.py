@@ -78,11 +78,18 @@ class SubAgent(BaseAgent):
         self.output_path.mkdir(parents=True, exist_ok=True)
         self.logs_path.mkdir(parents=True, exist_ok=True)
 
+        # Set workspace path for code execution (from BaseAgent)
+        self._workspace_path = self.workspace
+
         # Track output files
         self.output_files: list[dict] = []
 
         # Register sub-agent tools
         self._register_sub_agent_tools()
+
+        # Enable Python code execution if requested (uses BaseAgent's sandboxed implementation)
+        if enable_code_execution:
+            self._register_code_execution_tool()
 
         # Register additional tools if provided
         if additional_tools:
@@ -190,34 +197,8 @@ class SubAgent(BaseAgent):
                 category="web"
             ))
 
-        # Code execution tool (if enabled)
-        if self.enable_code_execution:
-            self.register_tool(AgentTool(
-                name="run_code",
-                description="Execute code in a sandboxed environment",
-                parameters={
-                    "type": "object",
-                    "properties": {
-                        "code": {
-                            "type": "string",
-                            "description": "Code to execute"
-                        },
-                        "language": {
-                            "type": "string",
-                            "enum": ["python", "bash", "javascript"],
-                            "description": "Programming language"
-                        },
-                        "timeout": {
-                            "type": "integer",
-                            "default": 30,
-                            "description": "Timeout in seconds"
-                        }
-                    },
-                    "required": ["code", "language"]
-                },
-                execute=self._execute_run_code,
-                category="code"
-            ))
+        # Note: Code execution (run_python) is registered separately via BaseAgent's
+        # _register_code_execution_tool() if enable_code_execution=True
 
     def _execute_write_file(self, params: dict) -> dict:
         """Write a file to the workspace."""
@@ -347,71 +328,6 @@ class SubAgent(BaseAgent):
 
             return {"success": True, "results": formatted_results}
 
-        except Exception as e:
-            return {"success": False, "error": str(e)}
-
-    async def _execute_run_code(self, params: dict) -> dict:
-        """Execute code in a sandboxed environment."""
-        if not self.enable_code_execution:
-            return {"success": False, "error": "Code execution not enabled"}
-
-        code = params.get("code", "")
-        language = params.get("language", "python")
-        timeout = params.get("timeout", 30)
-
-        if not code:
-            return {"success": False, "error": "Code is required"}
-
-        try:
-            import subprocess
-            import tempfile
-
-            # Create temp file for code
-            suffix = {
-                "python": ".py",
-                "bash": ".sh",
-                "javascript": ".js"
-            }.get(language, ".txt")
-
-            with tempfile.NamedTemporaryFile(
-                mode="w",
-                suffix=suffix,
-                dir=self.workspace,
-                delete=False
-            ) as f:
-                f.write(code)
-                temp_file = f.name
-
-            # Execute based on language
-            cmd = {
-                "python": ["python", temp_file],
-                "bash": ["bash", temp_file],
-                "javascript": ["node", temp_file]
-            }.get(language)
-
-            if not cmd:
-                return {"success": False, "error": f"Unsupported language: {language}"}
-
-            result = subprocess.run(
-                cmd,
-                capture_output=True,
-                text=True,
-                timeout=timeout,
-                cwd=str(self.workspace)
-            )
-
-            # Clean up
-            Path(temp_file).unlink(missing_ok=True)
-
-            return {
-                "success": True,
-                "stdout": result.stdout,
-                "stderr": result.stderr,
-                "exit_code": result.returncode
-            }
-
-        except subprocess.TimeoutExpired:
-            return {"success": False, "error": f"Execution timed out after {timeout}s"}
         except Exception as e:
             return {"success": False, "error": str(e)}
 

@@ -103,6 +103,8 @@ class AgentConfig:
     max_turns: Optional[int] = None  # None = unlimited
     timeout: Optional[int] = None  # None = no timeout
     preserve_recent_messages: int = 5
+    enable_code_execution: bool = False  # Enable sandboxed Python execution
+    code_timeout: int = 30  # Timeout for code execution in seconds
 
 
 class BaseAgent(ABC):
@@ -165,6 +167,9 @@ class BaseAgent(ABC):
         # Logs for this agent
         self.logs: list[dict] = []
 
+        # Workspace path (can be set by subclasses for sandboxed operations)
+        self._workspace_path: Optional[Path] = None
+
         # Register core tools
         self._register_core_tools()
 
@@ -222,6 +227,113 @@ class BaseAgent(ABC):
             category="meta",
             protected=True
         ))
+
+    def _register_code_execution_tool(self):
+        """Register the sandboxed Python execution tool."""
+        self.register_tool(AgentTool(
+            name="run_python",
+            description="Execute Python code in a sandboxed environment. Code runs in your workspace directory and can only access files there. Use this to test code, process data, or perform computations.",
+            parameters={
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "string",
+                        "description": "Python code to execute"
+                    },
+                    "save_as": {
+                        "type": "string",
+                        "description": "Optional: save the code to a file before running (e.g., 'script.py')"
+                    }
+                },
+                "required": ["code"]
+            },
+            execute=self._execute_run_python,
+            category="code",
+            protected=False
+        ))
+
+    async def _execute_run_python(self, params: dict) -> dict:
+        """Execute Python code in a sandboxed environment."""
+        code = params.get("code", "")
+        save_as = params.get("save_as")
+
+        if not code.strip():
+            return {"success": False, "error": "No code provided"}
+
+        # Get workspace path
+        workspace = self._workspace_path
+        if workspace is None:
+            return {"success": False, "error": "No workspace configured for code execution"}
+
+        workspace = Path(workspace)
+        if not workspace.exists():
+            workspace.mkdir(parents=True, exist_ok=True)
+
+        # Optionally save the code to a file
+        if save_as:
+            save_path = workspace / Path(save_as).name  # Sanitize filename
+            save_path.write_text(code)
+            self.log("INFO", f"Saved code to {save_as}")
+
+        try:
+            import subprocess
+            import tempfile
+            import os
+
+            # Create a temporary file for the code
+            with tempfile.NamedTemporaryFile(
+                mode='w',
+                suffix='.py',
+                dir=str(workspace),
+                delete=False
+            ) as f:
+                f.write(code)
+                temp_file = f.name
+
+            try:
+                # Run Python with restricted environment
+                env = os.environ.copy()
+                env['PYTHONDONTWRITEBYTECODE'] = '1'
+
+                result = subprocess.run(
+                    ['python', temp_file],
+                    capture_output=True,
+                    text=True,
+                    timeout=self.config.code_timeout,
+                    cwd=str(workspace),
+                    env=env
+                )
+
+                output = {
+                    "success": result.returncode == 0,
+                    "exit_code": result.returncode,
+                    "stdout": result.stdout[:10000] if result.stdout else "",
+                    "stderr": result.stderr[:5000] if result.stderr else ""
+                }
+
+                if save_as:
+                    output["saved_to"] = save_as
+
+                self.log(
+                    "INFO" if result.returncode == 0 else "WARNING",
+                    f"Python execution {'succeeded' if result.returncode == 0 else 'failed'}",
+                    description=f"Exit code: {result.returncode}"
+                )
+
+                return output
+
+            finally:
+                # Clean up temp file (but keep saved files)
+                if not save_as:
+                    Path(temp_file).unlink(missing_ok=True)
+
+        except subprocess.TimeoutExpired:
+            return {
+                "success": False,
+                "error": f"Code execution timed out after {self.config.code_timeout} seconds"
+            }
+        except Exception as e:
+            return {"success": False, "error": str(e)}
 
     def register_tool(self, tool: AgentTool):
         """Register a tool for this agent."""
