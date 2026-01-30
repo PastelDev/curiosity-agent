@@ -4,11 +4,14 @@ Handles hierarchical task management with subtasks.
 """
 
 import json
+import logging
+import uuid
+from dataclasses import dataclass, asdict, field
 from datetime import datetime
 from pathlib import Path
 from typing import Optional, Literal
-from dataclasses import dataclass, asdict, field
-import uuid
+
+logger = logging.getLogger(__name__)
 
 
 TodoStatus = Literal["pending", "in_progress", "done"]
@@ -52,7 +55,7 @@ class TodoManager:
                     item = self._dict_to_item(item_data)
                     self.items[item.id] = item
             except Exception as e:
-                print(f"Warning: Could not load todos: {e}")
+                logger.warning(f"Could not load todos: {e}")
 
     def _dict_to_item(self, data: dict) -> TodoItem:
         """Convert dict to TodoItem recursively."""

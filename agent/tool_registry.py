@@ -3,16 +3,20 @@ Tool Registry and Executor for Curiosity Agent.
 Handles tool loading, schema generation, and execution.
 """
 
-import json
+import asyncio
+import copy
 import importlib.util
+import json
+import logging
+import os
 import subprocess
 import tempfile
-import os
-import asyncio
-from pathlib import Path
-from typing import Optional, Callable, Any
 from dataclasses import dataclass
 from datetime import datetime
+from pathlib import Path
+from typing import Optional, Callable, Any
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -197,7 +201,7 @@ class ToolRegistry:
                             protected=False
                         ))
             except Exception as e:
-                print(f"Warning: Could not load custom tool {tool_file}: {e}")
+                logger.warning(f"Could not load custom tool {tool_file}: {e}")
     
     def register(self, tool: Tool):
         """Register a tool."""
@@ -212,6 +216,10 @@ class ToolRegistry:
         if category:
             return [name for name, tool in self.tools.items() if tool.category == category]
         return list(self.tools.keys())
+
+    def get_all_tools(self) -> list["Tool"]:
+        """Get all registered tools."""
+        return list(self.tools.values())
     
     def get_schemas(self, tool_names: Optional[list[str]] = None) -> list[dict]:
         """
@@ -226,7 +234,7 @@ class ToolRegistry:
                 continue
 
             # Clone the parameters to avoid mutating the original
-            params = json.loads(json.dumps(tool.parameters))
+            params = copy.deepcopy(tool.parameters)
 
             # Add tool_description field if required
             if self.REQUIRE_DESCRIPTION:
@@ -555,8 +563,7 @@ Format as JSON with keys: key_findings, important_facts, source_relevance, follo
                         "raw_results_count": len(results)
                     }, indent=2)
                 except Exception as e:
-                    # Log error but continue with raw results
-                    print(f"Summarizer error: {e}")
+                    logger.warning(f"Summarizer error: {e}")
 
             # Return raw results if no summarizer
             return json.dumps({

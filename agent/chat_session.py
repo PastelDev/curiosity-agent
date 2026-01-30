@@ -4,13 +4,16 @@ Allows users to chat with the model using a snapshot of agent context.
 """
 
 import json
+import logging
 import uuid
+from dataclasses import dataclass, field, asdict
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
-from dataclasses import dataclass, field, asdict
 
 from .openrouter_client import OpenRouterClient
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -58,7 +61,7 @@ class ChatSessionManager:
                     )
                     self.sessions[session.id] = session
             except Exception as e:
-                print(f"Failed to load chat sessions: {e}")
+                logger.warning(f"Failed to load chat sessions: {e}")
                 self.sessions = {}
 
     def _save(self):
