@@ -4,7 +4,10 @@ An autonomous, self-improving AI agent that runs continuously via OpenRouter, ex
 
 ## Features
 
+- **Modular Agent Architecture**: BaseAgent provides core functionality inherited by all specialized agents
 - **Multi-Agent Tournaments**: Spawn parallel agents that debate and synthesize solutions
+- **Sandboxed Code Execution**: Run Python code safely in isolated workspaces
+- **Agent-Controlled Completion**: Agents signal when they're done rather than relying on timeouts
 - **Dynamic Tool Creation**: Agent can create, modify, and delete its own tools
 - **Adaptive Context Management**: Automatic compaction when context fills up
 - **Persistent Journal**: Structured + freeform knowledge base for learnings
@@ -42,14 +45,41 @@ python -m agent.loop
 
 Navigate to `http://127.0.0.1:8000` in your browser.
 
+## Architecture
+
+Curiosity Agent uses a modular architecture centered around `BaseAgent`, an abstract base class that provides core functionality for all agent types:
+
+### Agent Types
+
+- **MainAgent** (`agent/main_agent.py`) - The continuous autonomous loop that runs indefinitely, working toward goals with access to meta-tools (journal, questions, tournaments)
+- **TournamentAgent** (`agent/tournament_agent.py`) - Isolated agents that run in tournaments with dedicated workspaces and can share files via the `reveal` tool
+- **SubAgent** (`agent/sub_agent.py`) - One-off task executors with optional web search or code execution capabilities
+  - **WebSearchAgent** - SubAgent with internet search enabled
+  - **CodeExecutionAgent** - SubAgent with sandboxed Python execution
+
+### BaseAgent Features
+
+All agents inherit from `BaseAgent` and include:
+
+- **Automatic Context Management** - Auto-compaction when context reaches threshold
+- **Tool Registration System** - Modular tool registration and execution
+- **Agent-Controlled Completion** - Agents signal completion via `complete_task` tool rather than relying on timeouts
+- **Built-in Logging** - Structured logging for each agent instance
+- **Workspace Isolation** - Each agent operates in its own workspace directory
+
 ## Project Structure
 
 ```
 curiosity-agent/
 ├── agent/                    # Core agent logic
-│   ├── loop.py               # Main autonomous loop
+│   ├── base_agent.py         # Abstract base class for all agents
+│   ├── main_agent.py         # Main autonomous loop agent
+│   ├── tournament_agent.py   # Tournament participant agent
+│   ├── sub_agent.py          # One-off task agent (with variants)
+│   ├── tournament_engine.py  # Tournament execution manager
+│   ├── loop.py               # Agent loop runner
 │   ├── context_manager.py    # Context tracking & compaction
-│   ├── tool_registry.py      # Tool loading & execution
+│   ├── tool_registry.py      # Tool loading & execution (MainAgent)
 │   ├── questions_manager.py  # Async user Q&A
 │   ├── journal_manager.py    # Knowledge base
 │   └── openrouter_client.py  # LLM API client
@@ -59,7 +89,7 @@ curiosity-agent/
 │   ├── templates/            # HTML templates
 │   └── static/               # CSS/JS assets
 │
-├── tools/                    # Tool definitions
+├── tools/                    # Tool definitions (for MainAgent)
 │   ├── core/                 # Protected core tools
 │   ├── meta/                 # Self-modification tools
 │   ├── output/               # Artifact creation
@@ -93,6 +123,12 @@ context:
   max_tokens: 128000
   compaction_threshold: 0.85  # Auto-compact at 85%
 
+agent:
+  enable_code_execution: true   # Enable run_python tool
+  code_timeout: 30              # Python execution timeout (seconds)
+  max_turns: null               # Max agent turns (null = unlimited)
+  timeout: null                 # Overall timeout (null = unlimited)
+
 tournament:
   default_stages: [4, 3, 2]   # Agents per stage
   default_debate_rounds: 2
@@ -117,30 +153,70 @@ Or update via the web dashboard's Goal Manager.
 
 ## Available Tools
 
-### Core Tools (Protected)
-- `read_file`, `write_file`, `list_directory` - File operations
-- `run_code` - Execute Python/Bash/JavaScript
-- `internet_search` - Web search via DuckDuckGo
-- `fetch_url` - Fetch URL content (via Jina Reader)
+Tools are categorized by which agent type has access to them:
 
-### Meta Tools (Self-Modification)
-- `manage_context` - Compact context, adjust threshold
-- `create_tool` - Create new custom tools
-- `delete_tool` - Remove custom tools
-- `write_journal` - Log ideas, experiments, failures
-- `read_journal` - Search knowledge base
-- `ask_user` - Post questions (non-blocking)
-- `manage_questions` - View/delete questions
+### Base Tools (All Agents)
+- `complete_task` - Signal task completion with reason, summary, and output
+- `manage_context` - Compact context, adjust threshold, or check status
 
-### Output Tools
-- `create_html` - HTML artifacts with Tailwind
-- `create_markdown` - Markdown documents
-- `create_latex` - LaTeX papers with citations
-- `create_python` - Python scripts
+### MainAgent Tools
+- **File Operations**: `read_file`, `write_file`, `list_directory`
+- **Code Execution**: `run_code` - Execute Python/Bash/JavaScript (via tool registry)
+- **Web Access**: `internet_search` (DuckDuckGo), `fetch_url` (Jina Reader)
+- **Meta Tools**:
+  - `create_tool`, `delete_tool` - Modify custom tools
+  - `write_journal`, `read_journal` - Knowledge base management
+  - `ask_user`, `manage_questions` - Async user interaction
+  - `manage_todos` - Todo list management
+- **Output Tools**: `create_html`, `create_markdown`, `create_latex`, `create_python`
+
+### TournamentAgent Tools
+- `read_file`, `write_file`, `list_files` - File operations in workspace
+- `reveal` - Share files with other tournament agents for synthesis
+- `run_python` - Sandboxed Python execution (always enabled)
+- `complete_task` - Signal completion
+
+### SubAgent Tools
+- `read_file`, `write_file`, `list_files` - File operations in workspace
+- `output` - Mark files as outputs
+- `run_python` - Sandboxed Python execution (optional, via CodeExecutionAgent)
+- `internet_search` - Web search (optional, via WebSearchAgent)
+- `complete_task` - Signal completion
+
+### The run_python Tool
+
+**Available to**: TournamentAgent (always), CodeExecutionAgent (always), SubAgent (when enabled)
+
+Executes Python code in a sandboxed environment:
+
+```python
+run_python(
+    code="print('Hello, World!')",
+    save_as="hello.py"  # Optional: save code to file
+)
+```
+
+**Features**:
+- Runs in isolated workspace directory
+- Configurable timeout (default 30s)
+- Captures stdout and stderr
+- Can persist code to files
+- All created files remain in workspace
+
+**Returns**:
+```json
+{
+    "success": true,
+    "exit_code": 0,
+    "stdout": "Hello, World!\n",
+    "stderr": "",
+    "saved_to": "workspace/hello.py"
+}
+```
 
 ## Tournament System
 
-For complex problems, the agent can spawn tournaments:
+For complex problems, the MainAgent can spawn multi-agent tournaments using the `TournamentEngine`:
 
 ```python
 create_tournament(
@@ -150,12 +226,44 @@ create_tournament(
 )
 ```
 
-**Flow:**
-1. Stage 1: 4 agents generate independent proposals
-2. Debate: Agents critique each other, then respond/refine
-3. Stage 2: 3 agents synthesize from Stage 1 + debates
-4. Stage 3: 2 agents produce final versions
-5. Assessor: Evaluates and merges best features
+### Tournament Flow
+
+1. **Stage 1**: N agents (`TournamentAgent` instances) work independently in isolated workspaces
+2. **Debate Round(s)**: Agents critique each other's work, then respond/refine
+3. **Synthesis**: Agents `reveal` files to share with the next stage
+4. **Stage 2+**: Fewer agents synthesize from previous stages + debate outputs
+5. **Final Synthesis**: Last stage produces the final solution
+
+### Agent-Controlled Completion
+
+Unlike the old timeout-based system, agents now signal completion themselves:
+
+```python
+complete_task(
+    reason="finished",  # or "stuck", "blocked", "error"
+    summary="Built a CLI tool with add/list/complete commands",
+    output="cli_tool.py"  # Optional file reference
+)
+```
+
+**Benefits**:
+- Agents work at their own pace
+- Clear success/failure signals
+- Better quality outputs (not cut off mid-thought)
+- Timeouts only act as safety limits
+
+### Workspace Isolation
+
+Each `TournamentAgent` runs in an isolated workspace:
+
+```
+tournaments/tournament_<id>/
+├── stage_<N>_agent_<M>/
+│   ├── workspace/        # Agent's working directory
+│   ├── revealed/         # Files shared via reveal() tool
+│   ├── logs/             # Agent execution logs
+│   └── context_state.json
+```
 
 ## Questions Panel
 
@@ -222,6 +330,35 @@ These models support tool calling and have free tiers:
 
 ```bash
 pytest tests/
+```
+
+### Using Different Agent Types
+
+```python
+from agent import MainAgent, SubAgent, WebSearchAgent, CodeExecutionAgent, TournamentEngine
+from agent.base_agent import AgentConfig
+
+# Create a one-off task agent
+config = AgentConfig(
+    model="x-ai/grok-4.1-fast",
+    enable_code_execution=True,
+    max_turns=10
+)
+agent = CodeExecutionAgent(config=config)
+await agent.run("Analyze this dataset and create visualizations")
+
+# Create a web search agent
+search_agent = WebSearchAgent(config=config)
+await search_agent.run("Research the latest in AI safety")
+
+# Run a tournament (from MainAgent)
+from agent.tournament_engine import TournamentEngine
+engine = TournamentEngine(config)
+result = await engine.run_tournament(
+    prompt="Design a REST API for a task manager",
+    stages=[3, 2],
+    debate_rounds=1
+)
 ```
 
 ### Adding a Custom Tool
