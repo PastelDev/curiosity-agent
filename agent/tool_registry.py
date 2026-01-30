@@ -220,47 +220,6 @@ class ToolRegistry:
     def get_all_tools(self) -> list["Tool"]:
         """Get all registered tools."""
         return list(self.tools.values())
-    
-    def get_schemas(self, tool_names: Optional[list[str]] = None) -> list[dict]:
-        """
-        Get OpenAI-format tool schemas for API calls.
-
-        If REQUIRE_DESCRIPTION is True, adds a required 'tool_description' field
-        to all tool schemas so the agent must explain what it's doing.
-        """
-        schemas = []
-        for name, tool in self.tools.items():
-            if tool_names and name not in tool_names:
-                continue
-
-            # Clone the parameters to avoid mutating the original
-            params = copy.deepcopy(tool.parameters)
-
-            # Add tool_description field if required
-            if self.REQUIRE_DESCRIPTION:
-                if "properties" not in params:
-                    params["properties"] = {}
-
-                params["properties"][self.DESCRIPTION_FIELD_NAME] = {
-                    "type": "string",
-                    "description": "A brief description of what you are doing with this tool call and why"
-                }
-
-                # Make it required
-                if "required" not in params:
-                    params["required"] = []
-                if self.DESCRIPTION_FIELD_NAME not in params["required"]:
-                    params["required"].append(self.DESCRIPTION_FIELD_NAME)
-
-            schemas.append({
-                "type": "function",
-                "function": {
-                    "name": tool.name,
-                    "description": tool.description,
-                    "parameters": params
-                }
-            })
-        return schemas
 
     def extract_description(self, arguments: dict) -> tuple[dict, Optional[str]]:
         """

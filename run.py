@@ -39,15 +39,15 @@ def run_web():
 async def run_cli(max_iterations=None):
     """Run the agent in CLI mode."""
     from agent import CuriosityAgent
-    
+
     print("🔍 Starting Curiosity Agent (CLI mode)...")
     print("   Press Ctrl+C to stop")
     print()
-    
+
     agent = CuriosityAgent()
-    
+
     try:
-        await agent.run(max_iterations=max_iterations)
+        await agent.run_continuous(max_iterations=max_iterations)
     except KeyboardInterrupt:
         print("\n⏹ Stopping agent...")
         agent.stop()

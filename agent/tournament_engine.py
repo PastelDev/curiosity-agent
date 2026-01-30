@@ -107,6 +107,21 @@ class Tournament:
             "error": self.error
         }
 
+    def get_all_containers(self) -> list[TournamentAgent]:
+        """Get all agent containers from all synthesis rounds."""
+        containers = []
+        for round_data in self.synthesis_rounds:
+            containers.extend(round_data.agents)
+        return containers
+
+    def get_container(self, container_id: str) -> Optional[TournamentAgent]:
+        """Get a specific agent container by ID."""
+        for round_data in self.synthesis_rounds:
+            for agent in round_data.agents:
+                if agent.agent_id == container_id:
+                    return agent
+        return None
+
 
 class TournamentEngine:
     """

@@ -47,3 +47,7 @@ Thumbs.db
 # Project specific
 tournaments/*/
 logs/*.jsonl
+agent_sandbox/
+agent_workspace/
+questions/
+journal/*/

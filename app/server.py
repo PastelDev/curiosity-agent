@@ -17,7 +17,6 @@ import sys
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from agent import CuriosityAgent, TournamentStatus
-from agent.chat_session import ChatSessionManager
 
 
 # Global agent instance
@@ -560,11 +559,15 @@ async def get_container(tournament_id: str, container_id: str):
     if not agent:
         raise HTTPException(status_code=500, detail="Agent not initialized")
 
-    container = agent.tournament_engine.get_container(tournament_id, container_id)
+    tournament = agent.tournament_engine.get_tournament(tournament_id)
+    if not tournament:
+        raise HTTPException(status_code=404, detail="Tournament not found")
+
+    container = tournament.get_container(container_id)
     if not container:
         raise HTTPException(status_code=404, detail="Container not found")
 
-    return container.to_dict()
+    return container.get_status()
 
 
 @app.get("/api/tournaments/{tournament_id}/containers/{container_id}/logs")

@@ -28,12 +28,6 @@ journal:
   structured_path: "journal/structured"
   freeform_path: "journal/freeform"
 
-workspace:
-  base_path: "workspace"
-  projects_path: "workspace/projects"
-  temp_path: "workspace/temp"
-  cleanup_temp_after_hours: 24
-
 sandbox:
   root: "agent_sandbox"
   tools_path: "agent_sandbox/tools"
