@@ -770,15 +770,20 @@ Current threshold: {self.context.threshold * 100}% (you can adjust this)
             # 4. Process response
             if response.tool_calls:
                 for tool_call in response.tool_calls:
-                    logger.info(f"Tool call: {tool_call.name}")
+                    # Extract the agent's description of what they're doing
+                    tool_description = tool_call.arguments.get("tool_description", "")
+                    logger.info(f"Tool call: {tool_call.name} | {tool_description}")
 
-                    # Enhanced logging for tool call
+                    # Enhanced logging for tool call with agent's description
                     self.enhanced_logger.log_action_start(
                         action_type="tool_call",
                         details=tool_call.name,
                         tool_name=tool_call.name,
                         tool_args=tool_call.arguments
                     )
+                    # Add the description immediately
+                    if tool_description:
+                        self.enhanced_logger.add_description_to_last_action(tool_description)
 
                     # Add tool call to context
                     self.context.append_tool_call(
@@ -787,17 +792,24 @@ Current threshold: {self.context.threshold * 100}% (you can adjust this)
                         tool_call.arguments
                     )
 
-                    # Execute tool
+                    # Execute tool (description is extracted inside execute)
                     result = await self.tools.execute(tool_call.name, tool_call.arguments)
-                    result_str = json.dumps(result, indent=2, default=str)
 
-                    # Enhanced logging for tool result
+                    # Get description from result if not already set
+                    result_description = result.get("description", tool_description)
+
+                    # Remove description from result for cleaner output
+                    result_for_context = {k: v for k, v in result.items() if k != "description"}
+                    result_str = json.dumps(result_for_context, indent=2, default=str)
+
+                    # Enhanced logging for tool result with description
                     files_affected = []
                     if tool_call.name in ["write_file", "read_file"]:
                         files_affected = [tool_call.arguments.get("path", tool_call.arguments.get("filename", ""))]
                     self.enhanced_logger.log_tool_result(
                         tool_name=tool_call.name,
-                        result=result,
+                        result=result_for_context,
+                        description=result_description,
                         files_affected=files_affected
                     )
 
@@ -807,6 +819,7 @@ Current threshold: {self.context.threshold * 100}% (you can adjust this)
                     step_info["actions"].append({
                         "type": "tool_call",
                         "tool": tool_call.name,
+                        "description": result_description,
                         "success": result.get("success", True)
                     })
 

@@ -1351,24 +1351,40 @@
     }
 
     ui.enhancedLogsList.innerHTML = state.enhancedLogs.map(log => {
+      // Build tool details section
       let toolHtml = '';
       if (log.tool_name) {
+        // Filter out tool_description from displayed args
+        let displayArgs = log.tool_args;
+        if (displayArgs && displayArgs.tool_description) {
+          displayArgs = {...displayArgs};
+          delete displayArgs.tool_description;
+        }
+        const argsStr = displayArgs && Object.keys(displayArgs).length > 0
+          ? JSON.stringify(displayArgs, null, 2).substring(0, 300)
+          : '';
+
         toolHtml = `
           <div class="enhanced-log-tool">
             <div class="enhanced-log-tool-name">${log.tool_name}</div>
-            ${log.tool_args ? `<div class="enhanced-log-tool-args">${JSON.stringify(log.tool_args, null, 2).substring(0, 200)}</div>` : ''}
+            ${argsStr ? `<div class="enhanced-log-tool-args">${escapeHtml(argsStr)}</div>` : ''}
           </div>
         `;
       }
 
+      // Description is the primary display element - shown prominently
+      const descriptionHtml = log.description
+        ? `<div class="enhanced-log-description-primary">${escapeHtml(log.description)}</div>`
+        : '';
+
       return `
-        <div class="enhanced-log-entry">
+        <div class="enhanced-log-entry ${log.description ? 'has-description' : ''}">
           <div class="enhanced-log-header">
             <span class="enhanced-log-category ${log.category}">${log.category}</span>
             <span class="enhanced-log-time">${formatTime(log.timestamp)}</span>
           </div>
+          ${descriptionHtml}
           <div class="enhanced-log-message">${escapeHtml(log.message)}</div>
-          ${log.description ? `<div class="enhanced-log-description">${escapeHtml(log.description)}</div>` : ''}
           ${toolHtml}
         </div>
       `;

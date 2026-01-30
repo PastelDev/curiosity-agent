@@ -1803,8 +1803,8 @@ textarea:focus {
 }
 
 .enhanced-log-message {
-  font-size: 0.85rem;
-  color: var(--white);
+  font-size: 0.8rem;
+  color: var(--white-dim);
   margin-bottom: 0.25rem;
 }
 
@@ -1812,6 +1812,27 @@ textarea:focus {
   font-size: 0.8rem;
   color: var(--accent-cyan);
   font-style: italic;
+}
+
+/* Primary description - the main display element (required field) */
+.enhanced-log-description-primary {
+  font-size: 0.95rem;
+  color: var(--white);
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba(107, 255, 240, 0.08);
+  border-left: 3px solid var(--accent-cyan);
+  border-radius: 0 4px 4px 0;
+}
+
+.enhanced-log-entry.has-description {
+  border-left: 2px solid var(--accent-cyan);
+}
+
+.enhanced-log-entry.has-description .enhanced-log-message {
+  font-size: 0.75rem;
+  color: var(--gray);
 }
 
 .enhanced-log-tool {
