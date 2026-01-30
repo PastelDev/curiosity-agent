@@ -127,7 +127,7 @@ async def start_agent(request: StartRequest):
     if agent_task and not agent_task.done():
         return {"status": "already_running"}
     
-    agent_task = asyncio.create_task(agent.run(max_iterations=request.max_iterations))
+    agent_task = asyncio.create_task(agent.run_continuous(max_iterations=request.max_iterations))
     return {"status": "started"}
 
 
@@ -343,7 +343,7 @@ async def update_goal(request: GoalUpdate):
     # Reload agent's goal
     if agent:
         agent.goal = request.content
-        agent._build_system_prompt()
+        agent.context.set_system_prompt(agent.build_system_prompt())
     
     return {"status": "updated"}
 
@@ -357,8 +357,10 @@ async def get_tools():
         raise HTTPException(status_code=500, detail="Agent not initialized")
     
     tools = []
-    for name in agent.tools.list_tools():
-        tool = agent.tools.get(name)
+    for name in agent.list_tools():
+        tool = agent.get_tool(name)
+        if not tool:
+            continue
         tools.append({
             "name": tool.name,
             "description": tool.description,

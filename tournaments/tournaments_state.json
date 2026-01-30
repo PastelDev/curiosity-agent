@@ -1,0 +1,1360 @@
+{
+  "saved_at": "2026-01-30T22:15:36.082239",
+  "tournaments": [
+    {
+      "id": "tournament_2cde39ccf8c2",
+      "topic": "Brainstorm Major Plot Hooks for Aurathia: High fantasy world with magical industrial solarpunk revolution (1800-1900s steampunk-ish but solar/magical powered), artificers, corrupt dark forces. Generate 5-10 epic plot hooks involving revolution, technology, corruption, heroes vs shadows.",
+      "stages": [
+        4,
+        3
+      ],
+      "debate_rounds": 2,
+      "model": "x-ai/grok-4.1-fast",
+      "base_path": "tournaments\\tournament_2cde39ccf8c2",
+      "status": "completed",
+      "created_at": "2026-01-30T22:11:33.467677",
+      "started_at": "2026-01-30T22:11:33.475681",
+      "completed_at": "2026-01-30T22:13:40.573598",
+      "synthesis_rounds": [
+        {
+          "round_number": 1,
+          "agent_count": 4,
+          "agents": [
+            {
+              "agent_id": "agent_96593e50",
+              "agent_type": "tournament",
+              "status": "completed",
+              "turn_count": 5,
+              "started_at": "2026-01-30T22:11:33.488765",
+              "completed_at": "2026-01-30T22:12:28.232331",
+              "completion_reason": "success",
+              "completion_output": {
+                "reason": "success",
+                "summary": "Generated 8 epic plot hooks in plot_hooks.md, fully integrating Aurathia's themes of solarpunk revolution, magical technology, corruption, and heroes vs shadows. Documented approach in approach.md. Revealed both files for synthesis.",
+                "output": {}
+              },
+              "error": null,
+              "context": {
+                "token_count": 549,
+                "max_tokens": 128000,
+                "usage_percent": 0.4,
+                "threshold_percent": 85.0,
+                "needs_compaction": false,
+                "message_count": 15,
+                "compaction_count": 0
+              },
+              "tools_count": 7,
+              "logs_count": 16
+            },
+            {
+              "agent_id": "agent_404cd5b8",
+              "agent_type": "tournament",
+              "status": "completed",
+              "turn_count": 3,
+              "started_at": "2026-01-30T22:11:33.711702",
+              "completed_at": "2026-01-30T22:12:18.031538",
+              "completion_reason": "success",
+              "completion_output": {
+                "reason": "success",
+                "summary": "Created comprehensive documentation in aurathia_plot_hooks.md including topic analysis, structured approach, and 8 high-quality epic plot hooks blending revolution, magical solar tech, corruption, and heroes vs shadows in Aurathia. Revealed file for synthesis.",
+                "output": {}
+              },
+              "error": null,
+              "context": {
+                "token_count": 446,
+                "max_tokens": 128000,
+                "usage_percent": 0.3,
+                "threshold_percent": 85.0,
+                "needs_compaction": false,
+                "message_count": 9,
+                "compaction_count": 0
+              },
+              "tools_count": 7,
+              "logs_count": 11
+            },
+            {
+              "agent_id": "agent_31eb4c84",
+              "agent_type": "tournament",
+              "status": "completed",
+              "turn_count": 3,
+              "started_at": "2026-01-30T22:11:33.933722",
+              "completed_at": "2026-01-30T22:12:14.645050",
+              "completion_reason": "success",
+              "completion_output": {
+                "reason": "success",
+                "summary": "Created and revealed plot_hooks.md with 8 epic, thematic plot hooks for Aurathia, plus reasoning.md documenting the approach. Ready for tournament synthesis.",
+                "output": {}
+              },
+              "error": null,
+              "context": {
+                "token_count": 460,
+                "max_tokens": 128000,
+                "usage_percent": 0.4,
+                "threshold_percent": 85.0,
+                "needs_compaction": false,
+                "message_count": 11,
+                "compaction_count": 0
+              },
+              "tools_count": 7,
+              "logs_count": 14
+            },
+            {
+              "agent_id": "agent_bab4e24c",
+              "agent_type": "tournament",
+              "status": "completed",
+              "turn_count": 3,
+              "started_at": "2026-01-30T22:11:34.168442",
+              "completed_at": "2026-01-30T22:12:11.921921",
+              "completion_reason": "success",
+              "completion_output": {
+                "reason": "success",
+                "summary": "Generated 8 high-quality epic plot hooks for Aurathia, documented approach and reasoning in Markdown files, revealed both for synthesis.",
+                "output": {}
+              },
+              "error": null,
+              "context": {
+                "token_count": 508,
+                "max_tokens": 128000,
+                "usage_percent": 0.4,
+                "threshold_percent": 85.0,
+                "needs_compaction": false,
+                "message_count": 13,
+                "compaction_count": 0
+              },
+              "tools_count": 7,
+              "logs_count": 15
+            }
+          ],
+          "input_files_count": 0,
+          "status": "completed",
+          "started_at": "2026-01-30T22:11:33.475681",
+          "completed_at": "2026-01-30T22:12:28.233324"
+        },
+        {
+          "round_number": 2,
+          "agent_count": 3,
+          "agents": [
+            {
+              "agent_id": "agent_a1bd2571",
+              "agent_type": "tournament",
+              "status": "completed",
+              "turn_count": 3,
+              "started_at": "2026-01-30T22:12:28.237331",
+              "completed_at": "2026-01-30T22:13:20.496340",
+              "completion_reason": "success",
+              "completion_output": {
+                "reason": "success",
+                "summary": "Synthesized 10 epic plot hooks into synthesized_plot_hooks.md by merging strongest ideas from all agents (structured with Summary, Key Conflicts, Twist, Stakes). Added reasoning in synthesis_reasoning.md explaining review, improvements, interconnectivity. Revealed both files for tournament collaboration. Superior quality: thematic, scalable, original enhancements.",
+                "output": {}
+              },
+              "error": null,
+              "context": {
+                "token_count": 6761,
+                "max_tokens": 128000,
+                "usage_percent": 5.3,
+                "threshold_percent": 85.0,
+                "needs_compaction": false,
+                "message_count": 14,
+                "compaction_count": 0
+              },
+              "tools_count": 7,
+              "logs_count": 15
+            },
+            {
+              "agent_id": "agent_f3e2e71a",
+              "agent_type": "tournament",
+              "status": "completed",
+              "turn_count": 4,
+              "started_at": "2026-01-30T22:12:28.430047",
+              "completed_at": "2026-01-30T22:13:40.565603",
+              "completion_reason": "success",
+              "completion_output": {
+                "reason": "success",
+                "summary": "Synthesized 10 improved, interconnected epic plot hooks in synthesized_plot_hooks.md, with reasoning in synthesis_reasoning.md. Merged best ideas, added structure/links/solarpunk depth, revealed both.",
+                "output": {}
+              },
+              "error": null,
+              "context": {
+                "token_count": 6899,
+                "max_tokens": 128000,
+                "usage_percent": 5.4,
+                "threshold_percent": 85.0,
+                "needs_compaction": false,
+                "message_count": 24,
+                "compaction_count": 0
+              },
+              "tools_count": 7,
+              "logs_count": 21
+            },
+            {
+              "agent_id": "agent_d3a02167",
+              "agent_type": "tournament",
+              "status": "completed",
+              "turn_count": 3,
+              "started_at": "2026-01-30T22:12:28.618902",
+              "completed_at": "2026-01-30T22:13:12.966732",
+              "completion_reason": "success",
+              "completion_output": {
+                "reason": "success",
+                "summary": "Synthesized 10 superior epic plot hooks from prior agents' contributions into synthesized_plot_hooks.md with structured, interconnected, thematic hooks. Documented process in synthesis_reasoning.md. Revealed both for tournament collaboration. No issues; ready for next round.",
+                "output": {}
+              },
+              "error": null,
+              "context": {
+                "token_count": 6761,
+                "max_tokens": 128000,
+                "usage_percent": 5.3,
+                "threshold_percent": 85.0,
+                "needs_compaction": false,
+                "message_count": 14,
+                "compaction_count": 0
+              },
+              "tools_count": 7,
+              "logs_count": 15
+            }
+          ],
+          "input_files_count": 7,
+          "status": "completed",
+          "started_at": "2026-01-30T22:12:28.235331",
+          "completed_at": "2026-01-30T22:13:40.568602"
+        }
+      ],
+      "final_files": [
+        {
+          "filename": "synthesized_plot_hooks.md",
+          "file_type": "md",
+          "description": null
+        },
+        {
+          "filename": "synthesis_reasoning.md",
+          "file_type": "md",
+          "description": null
+        },
+        {
+          "filename": "synthesized_plot_hooks.md",
+          "file_type": "md",
+          "description": null
+        },
+        {
+          "filename": "synthesis_reasoning.md",
+          "file_type": "md",
+          "description": null
+        },
+        {
+          "filename": "synthesis_reasoning.md",
+          "file_type": "md",
+          "description": null
+        },
+        {
+          "filename": "synthesized_plot_hooks.md",
+          "file_type": "md",
+          "description": null
+        },
+        {
+          "filename": "synthesis_reasoning.md",
+          "file_type": "md",
+          "description": null
+        }
+      ],
+      "error": null
+    },
+    {
+      "id": "tournament_9a2dadb90536",
+      "topic": "Brainstorm Iconic NPCs and Factions for Aurathia: Create 8-12 memorable NPCs (leaders, heroes, villains) and 5-7 factions (artificer guilds, revolutionary groups, corrupt cults, solar punk communes) with motivations, backstories fitting magical industrial revolution with dark corruption.",
+      "stages": [
+        4,
+        3
+      ],
+      "debate_rounds": 2,
+      "model": "x-ai/grok-4.1-fast",
+      "base_path": "tournaments\\tournament_9a2dadb90536",
+      "status": "completed",
+      "created_at": "2026-01-30T22:11:33.470681",
+      "started_at": "2026-01-30T22:11:33.479763",
+      "completed_at": "2026-01-30T22:14:36.434041",
+      "synthesis_rounds": [
+        {
+          "round_number": 1,
+          "agent_count": 4,
+          "agents": [
+            {
+              "agent_id": "agent_f47ac153",
+              "agent_type": "tournament",
+              "status": "completed",
+              "turn_count": 3,
+              "started_at": "2026-01-30T22:11:34.404836",
+              "completed_at": "2026-01-30T22:12:46.160495",
+              "completion_reason": "success",
+              "completion_output": {
+                "reason": "success",
+                "summary": "Created and revealed 'aurathia_npcs_factions.md' with 10 memorable NPCs and 6 factions, complete with thematic reasoning, backstories, motivations, plot hooks, and interconnections tailored to Aurathia's magical industrial revolution and dark corruption setting.",
+                "output": {}
+              },
+              "error": null,
+              "context": {
+                "token_count": 450,
+                "max_tokens": 128000,
+                "usage_percent": 0.4,
+                "threshold_percent": 85.0,
+                "needs_compaction": false,
+                "message_count": 9,
+                "compaction_count": 0
+              },
+              "tools_count": 7,
+              "logs_count": 11
+            },
+            {
+              "agent_id": "agent_51c9c61a",
+              "agent_type": "tournament",
+              "status": "completed",
+              "turn_count": 3,
+              "started_at": "2026-01-30T22:11:34.698371",
+              "completed_at": "2026-01-30T22:12:16.100525",
+              "completion_reason": "success",
+              "completion_output": {
+                "reason": "success",
+                "summary": "Brainstormed 10 iconic NPCs (leaders, heroes, villains) and 6 factions (guilds, revolutionaries, cults, solarpunk communes) for Aurathia, with motivations, backstories tied to magical industrial revolution and dark corruption. Documented reasoning in a comprehensive .md file and revealed it for synthesis.",
+                "output": {}
+              },
+              "error": null,
+              "context": {
+                "token_count": 423,
+                "max_tokens": 128000,
+                "usage_percent": 0.3,
+                "threshold_percent": 85.0,
+                "needs_compaction": false,
+                "message_count": 7,
+                "compaction_count": 0
+              },
+              "tools_count": 7,
+              "logs_count": 10
+            },
+            {
+              "agent_id": "agent_8afd8eee",
+              "agent_type": "tournament",
+              "status": "completed",
+              "turn_count": 3,
+              "started_at": "2026-01-30T22:11:34.965115",
+              "completed_at": "2026-01-30T22:12:28.209294",
+              "completion_reason": "success",
+              "completion_output": {
+                "reason": "success",
+                "summary": "Brainstormed and documented 10 iconic NPCs (heroes, villains, leaders) and 6 factions with motivations, backstories, and hooks fitting Aurathia's magical industrial revolution with dark corruption. Created approach.md (main), npcs.md, factions.md. All revealed for synthesis.",
+                "output": {}
+              },
+              "error": null,
+              "context": {
+                "token_count": 501,
+                "max_tokens": 128000,
+                "usage_percent": 0.4,
+                "threshold_percent": 85.0,
+                "needs_compaction": false,
+                "message_count": 15,
+                "compaction_count": 0
+              },
+              "tools_count": 7,
+              "logs_count": 18
+            },
+            {
+              "agent_id": "agent_0d9069db",
+              "agent_type": "tournament",
+              "status": "completed",
+              "turn_count": 5,
+              "started_at": "2026-01-30T22:11:35.237985",
+              "completed_at": "2026-01-30T22:13:21.289795",
+              "completion_reason": "success",
+              "completion_output": {
+                "reason": "success",
+                "summary": "Created and revealed 'aurathia_npcs_factions.md': detailed brainstorm with reasoning, 10 memorable NPCs (leaders/heroes/villains/wild cards) and 6 factions (artificer guilds, revolutionaries, cults, solar punk communes, etc.), complete with backstories, motivations, plot hooks, conflicts, and campaign integration for Aurathia's magical industrial revolution with dark corruption theme.",
+                "output": {}
+              },
+              "error": null,
+              "context": {
+                "token_count": 491,
+                "max_tokens": 128000,
+                "usage_percent": 0.4,
+                "threshold_percent": 85.0,
+                "needs_compaction": false,
+                "message_count": 11,
+                "compaction_count": 0
+              },
+              "tools_count": 7,
+              "logs_count": 12
+            }
+          ],
+          "input_files_count": 0,
+          "status": "completed",
+          "started_at": "2026-01-30T22:11:33.479763",
+          "completed_at": "2026-01-30T22:13:21.290842"
+        },
+        {
+          "round_number": 2,
+          "agent_count": 3,
+          "agents": [
+            {
+              "agent_id": "agent_8800d626",
+              "agent_type": "tournament",
+              "status": "completed",
+              "turn_count": 4,
+              "started_at": "2026-01-30T22:13:21.295843",
+              "completed_at": "2026-01-30T22:14:36.426768",
+              "completion_reason": "success",
+              "completion_output": {
+                "reason": "success",
+                "summary": "Synthesized top ideas from 5 inputs into polished aurathia_npcs_factions_synthesized.md (10 NPCs: 4H/4V/2A; 6 factions) with tables, RPG stubs, interconnections. Added reasoning file. Ready for tournament.",
+                "output": {}
+              },
+              "error": null,
+              "context": {
+                "token_count": 9754,
+                "max_tokens": 128000,
+                "usage_percent": 7.6,
+                "threshold_percent": 85.0,
+                "needs_compaction": false,
+                "message_count": 20,
+                "compaction_count": 0
+              },
+              "tools_count": 7,
+              "logs_count": 18
+            },
+            {
+              "agent_id": "agent_09e8b9ae",
+              "agent_type": "tournament",
+              "status": "completed",
+              "turn_count": 4,
+              "started_at": "2026-01-30T22:13:21.490269",
+              "completed_at": "2026-01-30T22:14:25.506011",
+              "completion_reason": "success",
+              "completion_output": {
+                "reason": "success",
+                "summary": "Synthesized top ideas from 4 agents into one polished aurathia_synthesized_npcs_factions.md: 11 iconic NPCs (4 heroes, 5 villains, 3 ambiguous), 6 factions (guilds, cult, revolutionaries, solarpunk, smugglers, puritans). Added tables, web diagram, campaign seeds, mechanics. Resolved overlaps, enhanced interconnectivity, thematic depth, RPG utility. Revealed for collaboration.",
+                "output": {}
+              },
+              "error": null,
+              "context": {
+                "token_count": 9607,
+                "max_tokens": 128000,
+                "usage_percent": 7.5,
+                "threshold_percent": 85.0,
+                "needs_compaction": false,
+                "message_count": 12,
+                "compaction_count": 0
+              },
+              "tools_count": 7,
+              "logs_count": 12
+            },
+            {
+              "agent_id": "agent_0e65e4ac",
+              "agent_type": "tournament",
+              "status": "completed",
+              "turn_count": 4,
+              "started_at": "2026-01-30T22:13:21.716662",
+              "completed_at": "2026-01-30T22:14:31.931120",
+              "completion_reason": "success",
+              "completion_output": {
+                "reason": "success",
+                "summary": "Reviewed all inputs, merged best ideas (e.g., agent_f4 structure + agent_51 diversity + tables from agent_0d), created unified aurathia_npcs_factions_synthesized.md with 12 balanced NPCs (heroes/villains/ambiguous), 6 factions, quick-ref tables, RPG stubs, flaws/quirks/hooks, interconnections web, and campaign seeds. Consistent Aetherblight theme, enhanced utility for MIR dystopia campaigns. Revealed the file.",
+                "output": {}
+              },
+              "error": null,
+              "context": {
+                "token_count": 9590,
+                "max_tokens": 128000,
+                "usage_percent": 7.5,
+                "threshold_percent": 85.0,
+                "needs_compaction": false,
+                "message_count": 10,
+                "compaction_count": 0
+              },
+              "tools_count": 7,
+              "logs_count": 11
+            }
+          ],
+          "input_files_count": 6,
+          "status": "completed",
+          "started_at": "2026-01-30T22:13:21.293786",
+          "completed_at": "2026-01-30T22:14:36.428768"
+        }
+      ],
+      "final_files": [
+        {
+          "filename": "aurathia_npcs_factions_synthesized.md",
+          "file_type": "md",
+          "description": null
+        },
+        {
+          "filename": "synthesis_reasoning.md",
+          "file_type": "md",
+          "description": null
+        },
+        {
+          "filename": "aurathia_synthesized_npcs_factions.md",
+          "file_type": "md",
+          "description": null
+        },
+        {
+          "filename": "aurathia_npcs_factions_synthesized.md",
+          "file_type": "md",
+          "description": null
+        }
+      ],
+      "error": null
+    },
+    {
+      "id": "tournament_6d470527c1a7",
+      "topic": "Develop Magical Technology Trees for Aurathia: Design 3-5 tech trees (e.g., Solar Arcana Engines, Mana-Forged Automata, Aether Rail Networks) blending 1800-1900s industrial with magic/solarpunk. Include tiers, key inventions, artificer roles, and risks of corruption/dark magic bleed.",
+      "stages": [
+        4,
+        3
+      ],
+      "debate_rounds": 2,
+      "model": "x-ai/grok-4.1-fast",
+      "base_path": "tournaments\\tournament_6d470527c1a7",
+      "status": "completed",
+      "created_at": "2026-01-30T22:11:33.473680",
+      "started_at": "2026-01-30T22:11:33.483752",
+      "completed_at": "2026-01-30T22:14:09.170135",
+      "synthesis_rounds": [
+        {
+          "round_number": 1,
+          "agent_count": 4,
+          "agents": [
+            {
+              "agent_id": "agent_69f48578",
+              "agent_type": "tournament",
+              "status": "completed",
+              "turn_count": 5,
+              "started_at": "2026-01-30T22:11:35.476730",
+              "completed_at": "2026-01-30T22:12:30.749343",
+              "completion_reason": "success",
+              "completion_output": {
+                "reason": "success",
+                "summary": "Developed 4 comprehensive Magical Technology Trees for Aurathia blending 1800-1900s industrial tech with solarpunk magic: Solar Arcana Engines (power), Mana-Forged Automata (automation), Aether Rail Networks (transport), Verdant Alchemy Networks (production). Each includes 4 tiers with key inventions, artificer roles, and escalating corruption risks. Created overview.md explaining approach. All files created and revealed.",
+                "output": {}
+              },
+              "error": null,
+              "context": {
+                "token_count": 778,
+                "max_tokens": 128000,
+                "usage_percent": 0.6,
+                "threshold_percent": 85.0,
+                "needs_compaction": false,
+                "message_count": 27,
+                "compaction_count": 0
+              },
+              "tools_count": 7,
+              "logs_count": 28
+            },
+            {
+              "agent_id": "agent_365b229e",
+              "agent_type": "tournament",
+              "status": "completed",
+              "turn_count": 3,
+              "started_at": "2026-01-30T22:11:35.712658",
+              "completed_at": "2026-01-30T22:12:12.768562",
+              "completion_reason": "success",
+              "completion_output": {
+                "reason": "success",
+                "summary": "Designed 4 detailed Magical Technology Trees for Aurathia (Solar Arcana Engines, Mana-Forged Automata, Aether Rail Networks, Luminary Crystal Networks), each with tiers, key inventions, artificer roles, and corruption risks. Documented in aurathia_tech_trees.md and revealed for synthesis.",
+                "output": {}
+              },
+              "error": null,
+              "context": {
+                "token_count": 420,
+                "max_tokens": 128000,
+                "usage_percent": 0.3,
+                "threshold_percent": 85.0,
+                "needs_compaction": false,
+                "message_count": 7,
+                "compaction_count": 0
+              },
+              "tools_count": 7,
+              "logs_count": 10
+            },
+            {
+              "agent_id": "agent_e36db2cf",
+              "agent_type": "tournament",
+              "status": "completed",
+              "turn_count": 4,
+              "started_at": "2026-01-30T22:11:35.935667",
+              "completed_at": "2026-01-30T22:12:51.095331",
+              "completion_reason": "success",
+              "completion_output": {
+                "reason": "success",
+                "summary": "Designed 4 Magical Technology Trees for Aurathia: Solar Arcana Engines, Mana-Forged Automata, Aether Rail Networks, Verdant Alchemy Forges. Each includes 3 tiers, key inventions, artificer roles, and corruption risks. Created main design doc with reasoning. All files revealed.",
+                "output": {}
+              },
+              "error": null,
+              "context": {
+                "token_count": 777,
+                "max_tokens": 128000,
+                "usage_percent": 0.6,
+                "threshold_percent": 85.0,
+                "needs_compaction": false,
+                "message_count": 27,
+                "compaction_count": 0
+              },
+              "tools_count": 7,
+              "logs_count": 28
+            },
+            {
+              "agent_id": "agent_eab706d9",
+              "agent_type": "tournament",
+              "status": "completed",
+              "turn_count": 1,
+              "started_at": "2026-01-30T22:11:36.154064",
+              "completed_at": "2026-01-30T22:11:56.740979",
+              "completion_reason": "success",
+              "completion_output": {
+                "reason": "success",
+                "summary": "Designed and documented 4 Magical Technology Trees for Aurathia: Solar Arcana Engines, Mana-Forged Automata, Aether Rail Networks, Verdant Alchemy Labs. Each includes 3-4 tiers, key inventions, artificer roles, and corruption risks. Created and revealed Aurathia_Magitech_Trees.md as the main output.",
+                "output": {}
+              },
+              "error": null,
+              "context": {
+                "token_count": 397,
+                "max_tokens": 128000,
+                "usage_percent": 0.3,
+                "threshold_percent": 85.0,
+                "needs_compaction": false,
+                "message_count": 5,
+                "compaction_count": 0
+              },
+              "tools_count": 7,
+              "logs_count": 7
+            }
+          ],
+          "input_files_count": 0,
+          "status": "completed",
+          "started_at": "2026-01-30T22:11:33.484752",
+          "completed_at": "2026-01-30T22:12:51.096505"
+        },
+        {
+          "round_number": 2,
+          "agent_count": 3,
+          "agents": [
+            {
+              "agent_id": "agent_1ad722b1",
+              "agent_type": "tournament",
+              "status": "completed",
+              "turn_count": 3,
+              "started_at": "2026-01-30T22:12:51.101785",
+              "completed_at": "2026-01-30T22:13:45.555901",
+              "completion_reason": "success",
+              "completion_output": {
+                "reason": "success",
+                "summary": "Reviewed and synthesized contributions: Created improved Aurathia_Tech_Trees_Synthesized_Overview.md and 4 tech tree files (Solar_Arcana_Engines.md, Mana-Forged_Automata.md, Aether_Rail_Networks.md, Verdant_Alchemy_Networks.md). Standardized 4 tiers, merged best inventions/roles/risks from agents 69/36/e3, added inter-tree links, solarpunk harmony mechanics, guilds. All revealed for next round.",
+                "output": {}
+              },
+              "error": null,
+              "context": {
+                "token_count": 7269,
+                "max_tokens": 128000,
+                "usage_percent": 5.7,
+                "threshold_percent": 85.0,
+                "needs_compaction": false,
+                "message_count": 24,
+                "compaction_count": 0
+              },
+              "tools_count": 7,
+              "logs_count": 26
+            },
+            {
+              "agent_id": "agent_c7cb2a32",
+              "agent_type": "tournament",
+              "status": "completed",
+              "turn_count": 4,
+              "started_at": "2026-01-30T22:12:51.300055",
+              "completed_at": "2026-01-30T22:13:49.487744",
+              "completion_reason": "success",
+              "completion_output": {
+                "reason": "success",
+                "summary": "Synthesized best elements from all agents: standardized 4-tier structures, merged inventions/roles/risks, enhanced interconnections, solarpunk-industrial blend. Created overview + 4 tech trees. All revealed.",
+                "output": {}
+              },
+              "error": null,
+              "context": {
+                "token_count": 7327,
+                "max_tokens": 128000,
+                "usage_percent": 5.7,
+                "threshold_percent": 85.0,
+                "needs_compaction": false,
+                "message_count": 28,
+                "compaction_count": 0
+              },
+              "tools_count": 7,
+              "logs_count": 28
+            },
+            {
+              "agent_id": "agent_d7928b95",
+              "agent_type": "tournament",
+              "status": "completed",
+              "turn_count": 9,
+              "started_at": "2026-01-30T22:12:51.500257",
+              "completed_at": "2026-01-30T22:14:09.161526",
+              "completion_reason": "success",
+              "completion_output": {
+                "reason": "success",
+                "summary": "Synthesized best ideas from all previous agents into 4 improved tech trees + overview. Standardized 4 tiers, integrated interconnectivity, enhanced solarpunk flavor, escalating risks, consistent structure. Revealed all files.",
+                "output": {}
+              },
+              "error": null,
+              "context": {
+                "token_count": 7343,
+                "max_tokens": 128000,
+                "usage_percent": 5.7,
+                "threshold_percent": 85.0,
+                "needs_compaction": false,
+                "message_count": 31,
+                "compaction_count": 0
+              },
+              "tools_count": 7,
+              "logs_count": 28
+            }
+          ],
+          "input_files_count": 11,
+          "status": "completed",
+          "started_at": "2026-01-30T22:12:51.098505",
+          "completed_at": "2026-01-30T22:14:09.162525"
+        }
+      ],
+      "final_files": [
+        {
+          "filename": "Aurathia_Tech_Trees_Synthesized_Overview.md",
+          "file_type": "md",
+          "description": null
+        },
+        {
+          "filename": "Solar_Arcana_Engines.md",
+          "file_type": "md",
+          "description": null
+        },
+        {
+          "filename": "Mana-Forged_Automata.md",
+          "file_type": "md",
+          "description": null
+        },
+        {
+          "filename": "Aether_Rail_Networks.md",
+          "file_type": "md",
+          "description": null
+        },
+        {
+          "filename": "Verdant_Alchemy_Networks.md",
+          "file_type": "md",
+          "description": null
+        },
+        {
+          "filename": "Aurathia_Tech_Trees_Synthesized_Overview.md",
+          "file_type": "md",
+          "description": null
+        },
+        {
+          "filename": "Solar_Arcana_Engines.md",
+          "file_type": "md",
+          "description": null
+        },
+        {
+          "filename": "Mana-Forged_Automata.md",
+          "file_type": "md",
+          "description": null
+        },
+        {
+          "filename": "Aether_Rail_Networks.md",
+          "file_type": "md",
+          "description": null
+        },
+        {
+          "filename": "Verdant_Alchemy_Networks.md",
+          "file_type": "md",
+          "description": null
+        },
+        {
+          "filename": "Aurathia_Synthesized_Tech_Trees_Overview.md",
+          "file_type": "md",
+          "description": null
+        },
+        {
+          "filename": "Solar_Arcana_Engines.md",
+          "file_type": "md",
+          "description": null
+        },
+        {
+          "filename": "Mana-Forged_Automata.md",
+          "file_type": "md",
+          "description": null
+        },
+        {
+          "filename": "Aether_Rail_Networks.md",
+          "file_type": "md",
+          "description": null
+        },
+        {
+          "filename": "Verdant_Alchemy_Networks.md",
+          "file_type": "md",
+          "description": null
+        }
+      ],
+      "error": null
+    },
+    {
+      "id": "tournament_69ff91561da3",
+      "topic": "Refine World Map and Regions for Aurathia: Develop a detailed world map with regions (continents, cities, biomes). Include solarpunk industrial hubs, corrupt wastelands, magical forests. Specify pixel colors for map visualization (e.g., green for solar groves, black for void rifts). Generate ASCII or describe for code-based rendering.",
+      "stages": [
+        4,
+        3
+      ],
+      "debate_rounds": 2,
+      "model": "x-ai/grok-4.1-fast",
+      "base_path": "tournaments\\tournament_69ff91561da3",
+      "status": "completed",
+      "created_at": "2026-01-30T22:11:55.116638",
+      "started_at": "2026-01-30T22:11:55.119638",
+      "completed_at": "2026-01-30T22:15:01.469666",
+      "synthesis_rounds": [
+        {
+          "round_number": 1,
+          "agent_count": 4,
+          "agents": [
+            {
+              "agent_id": "agent_471fe0a9",
+              "agent_type": "tournament",
+              "status": "completed",
+              "turn_count": 4,
+              "started_at": "2026-01-30T22:11:55.124631",
+              "completed_at": "2026-01-30T22:13:09.772332",
+              "completion_reason": "success",
+              "completion_output": {
+                "reason": "success",
+                "summary": "Developed a detailed solarpunk-fantasy world map for Aurathia: 120x60 grid with biomes (solarpunk hubs, wastelands, forests), key regions/cities, RGB color palette, procedural generation logic. Provided MD doc with reasoning/ASCII preview, Pygame renderer, JSON data. Ready for RPGs/games.",
+                "output": {}
+              },
+              "error": null,
+              "context": {
+                "token_count": 753,
+                "max_tokens": 128000,
+                "usage_percent": 0.6,
+                "threshold_percent": 85.0,
+                "needs_compaction": false,
+                "message_count": 19,
+                "compaction_count": 0
+              },
+              "tools_count": 7,
+              "logs_count": 21
+            },
+            {
+              "agent_id": "agent_e2f22ab8",
+              "agent_type": "tournament",
+              "status": "completed",
+              "turn_count": 1,
+              "started_at": "2026-01-30T22:11:55.441277",
+              "completed_at": "2026-01-30T22:12:21.066014",
+              "completion_reason": "success",
+              "completion_output": {
+                "reason": "success",
+                "summary": "Developed a comprehensive world map for Aurathia with 5 continents/regions blending solarpunk hubs, corrupt wastelands, magical forests, and more. Included detailed MD documentation, JSON color data, and a Python script for ASCII/pixel rendering. Tested via run_python.",
+                "output": {}
+              },
+              "error": null,
+              "context": {
+                "token_count": 459,
+                "max_tokens": 128000,
+                "usage_percent": 0.4,
+                "threshold_percent": 85.0,
+                "needs_compaction": false,
+                "message_count": 9,
+                "compaction_count": 0
+              },
+              "tools_count": 7,
+              "logs_count": 9
+            },
+            {
+              "agent_id": "agent_db2c7b06",
+              "agent_type": "tournament",
+              "status": "completed",
+              "turn_count": 3,
+              "started_at": "2026-01-30T22:11:55.746169",
+              "completed_at": "2026-01-30T22:12:41.465595",
+              "completion_reason": "success",
+              "completion_output": {
+                "reason": "success",
+                "summary": "Developed detailed Aurathia world map with 4 regions (Elysara solarpunk hub, Sylvandor magical forests, Vordrak wastelands, Shattered Isles). Defined pixel color palette (RGB), ASCII map, and Pygame renderer for visualization. Documented in MD file with lore integration.",
+                "output": {}
+              },
+              "error": null,
+              "context": {
+                "token_count": 529,
+                "max_tokens": 128000,
+                "usage_percent": 0.4,
+                "threshold_percent": 85.0,
+                "needs_compaction": false,
+                "message_count": 15,
+                "compaction_count": 0
+              },
+              "tools_count": 7,
+              "logs_count": 18
+            },
+            {
+              "agent_id": "agent_0618bc6b",
+              "agent_type": "tournament",
+              "status": "completed",
+              "turn_count": 5,
+              "started_at": "2026-01-30T22:11:56.067581",
+              "completed_at": "2026-01-30T22:12:56.014313",
+              "completion_reason": "success",
+              "completion_output": {
+                "reason": "success",
+                "summary": "Created comprehensive Aurathia world documentation (aurathia_world.md) with reasoning, solarpunk/wasteland/magical regions, color palette (RGB/hex), ASCII map, key cities/landmarks. Generated aurathia_map_generator.py script for pixel art PNG (512x256, 64x32 grid). Executed to produce aurathia_map.png. Revealed MD and PY files for synthesis; PNG generated but reveal skipped due to codec issue.",
+                "output": {}
+              },
+              "error": null,
+              "context": {
+                "token_count": 1024,
+                "max_tokens": 128000,
+                "usage_percent": 0.8,
+                "threshold_percent": 85.0,
+                "needs_compaction": false,
+                "message_count": 21,
+                "compaction_count": 0
+              },
+              "tools_count": 7,
+              "logs_count": 21
+            }
+          ],
+          "input_files_count": 0,
+          "status": "completed",
+          "started_at": "2026-01-30T22:11:55.119638",
+          "completed_at": "2026-01-30T22:13:09.773837"
+        },
+        {
+          "round_number": 2,
+          "agent_count": 3,
+          "agents": [
+            {
+              "agent_id": "agent_d6ec5aeb",
+              "agent_type": "tournament",
+              "status": "completed",
+              "turn_count": 3,
+              "started_at": "2026-01-30T22:13:09.779346",
+              "completed_at": "2026-01-30T22:14:05.580372",
+              "completion_reason": "success",
+              "completion_output": {
+                "reason": "success",
+                "summary": "Synthesized contributions: Combined agent_47's data-driven 120x60 grid/JSON/Pygame with agent_db's super-regions (Elysara, Sylvandor, Vordrak, Shattered Peaks) and agent_06's vertical contrasts. Created unified aurathia_regions.json (super-regions, refined locations, terrain rules), improved aurathia_map_generator.py (JSON-load, interactive hover, PNG/ASCII export via S/A keys), and aurathia_synthesis.md (reasoning/specs/preview). Map ready for rendering with solarpunk hubs, corrupt wastelands, magical forests, void rifts, pixel colors.",
+                "output": {}
+              },
+              "error": null,
+              "context": {
+                "token_count": 6750,
+                "max_tokens": 128000,
+                "usage_percent": 5.3,
+                "threshold_percent": 85.0,
+                "needs_compaction": false,
+                "message_count": 16,
+                "compaction_count": 0
+              },
+              "tools_count": 7,
+              "logs_count": 18
+            },
+            {
+              "agent_id": "agent_9790250a",
+              "agent_type": "tournament",
+              "status": "completed",
+              "turn_count": 4,
+              "started_at": "2026-01-30T22:13:09.992397",
+              "completed_at": "2026-01-30T22:14:24.976991",
+              "completion_reason": "success",
+              "completion_output": {
+                "reason": "success",
+                "summary": "Synthesized best from 3 agents: unified 120x60 grid JSON data with 7 regions (combined Solara, Eldergrove, Ashenreach+Riftscar, Shattered Peaks+Voidspire, Crystal Lake); harmonized colors; improved base terrain rules. Generator.py loads JSON, renders Pygame interactive map w/labels+legend, auto-generates ASCII. MD explains reasoning/layout. All files ready for use/extension.",
+                "output": {}
+              },
+              "error": null,
+              "context": {
+                "token_count": 6888,
+                "max_tokens": 128000,
+                "usage_percent": 5.4,
+                "threshold_percent": 85.0,
+                "needs_compaction": false,
+                "message_count": 14,
+                "compaction_count": 0
+              },
+              "tools_count": 7,
+              "logs_count": 15
+            },
+            {
+              "agent_id": "agent_cf8062d1",
+              "agent_type": "tournament",
+              "status": "completed",
+              "turn_count": 5,
+              "started_at": "2026-01-30T22:13:10.188330",
+              "completed_at": "2026-01-30T22:15:01.463666",
+              "completion_reason": "success",
+              "completion_output": {
+                "reason": "success",
+                "summary": "Synthesized the best elements from all agents: 120x60 grid with continents (Elysara, Sylvandor, Vordrak, Shattered Isles), unified colors, JSON-driven procedural gen with void strips, interactive Pygame renderer w/ labels & ASCII export. Balanced solarpunk hubs, corrupt wastes, magical forests. Extensible and lore-rich.",
+                "output": {}
+              },
+              "error": null,
+              "context": {
+                "token_count": 7343,
+                "max_tokens": 128000,
+                "usage_percent": 5.7,
+                "threshold_percent": 85.0,
+                "needs_compaction": false,
+                "message_count": 24,
+                "compaction_count": 0
+              },
+              "tools_count": 7,
+              "logs_count": 24
+            }
+          ],
+          "input_files_count": 8,
+          "status": "completed",
+          "started_at": "2026-01-30T22:13:09.776344",
+          "completed_at": "2026-01-30T22:15:01.464668"
+        }
+      ],
+      "final_files": [
+        {
+          "filename": "aurathia_synthesis.md",
+          "file_type": "md",
+          "description": null
+        },
+        {
+          "filename": "aurathia_regions.json",
+          "file_type": "json",
+          "description": null
+        },
+        {
+          "filename": "aurathia_map_generator.py",
+          "file_type": "py",
+          "description": null
+        },
+        {
+          "filename": "aurathia_synthesis_world_map.md",
+          "file_type": "md",
+          "description": null
+        },
+        {
+          "filename": "aurathia_regions.json",
+          "file_type": "json",
+          "description": null
+        },
+        {
+          "filename": "aurathia_map_generator.py",
+          "file_type": "py",
+          "description": null
+        },
+        {
+          "filename": "aurathia_ascii_map.txt",
+          "file_type": "txt",
+          "description": null
+        }
+      ],
+      "error": null
+    },
+    {
+      "id": "tournament_d092ff481197",
+      "topic": "Character Creation Options Expansion for Aurathia: Generate new races, classes, backgrounds, feats for magical industrial solarpunk revolution setting. Include artificer subclasses, solar-mages, corrupted hybrids. 10+ options each, balanced for 1800-1900s fantasy tech vibe.",
+      "stages": [
+        4,
+        3
+      ],
+      "debate_rounds": 2,
+      "model": "x-ai/grok-4.1-fast",
+      "base_path": "tournaments\\tournament_d092ff481197",
+      "status": "completed",
+      "created_at": "2026-01-30T22:12:56.091455",
+      "started_at": "2026-01-30T22:12:56.096460",
+      "completed_at": "2026-01-30T22:15:36.082239",
+      "synthesis_rounds": [
+        {
+          "round_number": 1,
+          "agent_count": 4,
+          "agents": [
+            {
+              "agent_id": "agent_e3e18393",
+              "agent_type": "tournament",
+              "status": "completed",
+              "turn_count": 3,
+              "started_at": "2026-01-30T22:12:56.103025",
+              "completed_at": "2026-01-30T22:14:07.922080",
+              "completion_reason": "success",
+              "completion_output": {
+                "reason": "success",
+                "summary": "Generated 12+ options each for races, classes/subclasses, backgrounds, and feats. All balanced for D&D 5e in magical industrial solarpunk revolution setting. Included required artificer subclasses, solar-mages, corrupted hybrids. Documented in MD files with approach overview. All revealed for synthesis.",
+                "output": {}
+              },
+              "error": null,
+              "context": {
+                "token_count": 585,
+                "max_tokens": 128000,
+                "usage_percent": 0.5,
+                "threshold_percent": 85.0,
+                "needs_compaction": false,
+                "message_count": 23,
+                "compaction_count": 0
+              },
+              "tools_count": 7,
+              "logs_count": 26
+            },
+            {
+              "agent_id": "agent_757bf51d",
+              "agent_type": "tournament",
+              "status": "completed",
+              "turn_count": 3,
+              "started_at": "2026-01-30T22:12:56.342336",
+              "completed_at": "2026-01-30T22:13:58.215155",
+              "completion_reason": "success",
+              "completion_output": {
+                "reason": "success",
+                "summary": "Created comprehensive character creation expansion for Aurathia: 12 races (incl. corrupted hybrids), 12 class options (Solar Mage full class + subclasses incl. 3 Artificer & corrupted), 12 backgrounds, 12 feats. All balanced for 5e, themed to magical industrial solarpunk revolution with 1800s tech vibe. Documented in 5 MD files, main.md as hub.",
+                "output": {}
+              },
+              "error": null,
+              "context": {
+                "token_count": 600,
+                "max_tokens": 128000,
+                "usage_percent": 0.5,
+                "threshold_percent": 85.0,
+                "needs_compaction": false,
+                "message_count": 25,
+                "compaction_count": 0
+              },
+              "tools_count": 7,
+              "logs_count": 27
+            },
+            {
+              "agent_id": "agent_a7596a75",
+              "agent_type": "tournament",
+              "status": "completed",
+              "turn_count": 2,
+              "started_at": "2026-01-30T22:12:56.598537",
+              "completed_at": "2026-01-30T22:13:50.076846",
+              "completion_reason": "success",
+              "completion_output": {
+                "reason": "success",
+                "summary": "Generated 12 new races, 12 classes/subclasses, 12 backgrounds, and 12 feats for Aurathia setting. Documented in aurathia_expansion.md with reasoning, balance notes, and tables. Revealed file for synthesis.",
+                "output": {}
+              },
+              "error": null,
+              "context": {
+                "token_count": 417,
+                "max_tokens": 128000,
+                "usage_percent": 0.3,
+                "threshold_percent": 85.0,
+                "needs_compaction": false,
+                "message_count": 7,
+                "compaction_count": 0
+              },
+              "tools_count": 7,
+              "logs_count": 10
+            },
+            {
+              "agent_id": "agent_63fe0f4c",
+              "agent_type": "tournament",
+              "status": "completed",
+              "turn_count": 4,
+              "started_at": "2026-01-30T22:12:56.808996",
+              "completed_at": "2026-01-30T22:13:49.895757",
+              "completion_reason": "success",
+              "completion_output": {
+                "reason": "success",
+                "summary": "Generated 12 races, 5 new classes + 4 Artificer subclasses (incl. Solar Mage, corrupted), 12 backgrounds, 15 feats. All in balanced D&D 5e format for solarpunk industrial setting. Files: main.md (overview), races.md, classes.md, backgrounds.md, feats.md. All revealed.",
+                "output": {}
+              },
+              "error": null,
+              "context": {
+                "token_count": 674,
+                "max_tokens": 128000,
+                "usage_percent": 0.5,
+                "threshold_percent": 85.0,
+                "needs_compaction": false,
+                "message_count": 25,
+                "compaction_count": 0
+              },
+              "tools_count": 7,
+              "logs_count": 27
+            }
+          ],
+          "input_files_count": 0,
+          "status": "completed",
+          "started_at": "2026-01-30T22:12:56.097459",
+          "completed_at": "2026-01-30T22:14:07.925078"
+        },
+        {
+          "round_number": 2,
+          "agent_count": 3,
+          "agents": [
+            {
+              "agent_id": "agent_d52ef11f",
+              "agent_type": "tournament",
+              "status": "completed",
+              "turn_count": 2,
+              "started_at": "2026-01-30T22:14:07.931088",
+              "completed_at": "2026-01-30T22:15:19.244916",
+              "completion_reason": "success",
+              "completion_output": {
+                "reason": "success",
+                "summary": "Synthesized the best ideas from previous contributions into improved, balanced D&D 5e content: 12 races (4 solar, 4 industrial, 4 verdant/corrupt hybrids), 12 class/subclasses (exactly 4 Artificer, 4 Solar Sorcerer, 4 Corrupted Hybrid Warlock), 12 backgrounds, 12 feats. Merged duplicates, added lore ties, ensured 1800s solarpunk revolution vibe. Created and revealed main.md (reasoning/overview), races.md, classes.md, backgrounds.md, feats.md.",
+                "output": {}
+              },
+              "error": null,
+              "context": {
+                "token_count": 12645,
+                "max_tokens": 128000,
+                "usage_percent": 9.9,
+                "threshold_percent": 85.0,
+                "needs_compaction": false,
+                "message_count": 24,
+                "compaction_count": 0
+              },
+              "tools_count": 7,
+              "logs_count": 26
+            },
+            {
+              "agent_id": "agent_5ff50b86",
+              "agent_type": "tournament",
+              "status": "completed",
+              "turn_count": 4,
+              "started_at": "2026-01-30T22:14:08.179199",
+              "completed_at": "2026-01-30T22:15:36.072727",
+              "completion_reason": "success",
+              "completion_output": {
+                "reason": "success",
+                "summary": "Synthesized 12 options each for races, classes/subclasses, backgrounds, feats from previous contributions. Improved balance, consistency, themes (solarpunk industrial revolution, corrupted hybrids, Artificer/Solar Mage focus). Created 6 files: main.md (overview), approach.md (reasoning), races.md, classes.md, backgrounds.md, feats.md. All revealed for next round.",
+                "output": {}
+              },
+              "error": null,
+              "context": {
+                "token_count": 12758,
+                "max_tokens": 128000,
+                "usage_percent": 10.0,
+                "threshold_percent": 85.0,
+                "needs_compaction": false,
+                "message_count": 32,
+                "compaction_count": 0
+              },
+              "tools_count": 7,
+              "logs_count": 32
+            },
+            {
+              "agent_id": "agent_eb56cce6",
+              "agent_type": "tournament",
+              "status": "completed",
+              "turn_count": 4,
+              "started_at": "2026-01-30T22:14:08.411006",
+              "completed_at": "2026-01-30T22:15:11.288500",
+              "completion_reason": "success",
+              "completion_output": {
+                "reason": "success",
+                "summary": "Reviewed all previous contributions, identified strongest ideas (hybrids, solar tech, revolution themes), synthesized into 12 balanced options per category (races with 3 corrupt hybrids, classes with full Solar Mage +4 Artif subs +4 Sorc subs +3 hybrids, backgrounds, feats). Improved formatting, mechanics (5e standards), lore ties. All files written and revealed.",
+                "output": {}
+              },
+              "error": null,
+              "context": {
+                "token_count": 12662,
+                "max_tokens": 128000,
+                "usage_percent": 9.9,
+                "threshold_percent": 85.0,
+                "needs_compaction": false,
+                "message_count": 26,
+                "compaction_count": 0
+              },
+              "tools_count": 7,
+              "logs_count": 27
+            }
+          ],
+          "input_files_count": 16,
+          "status": "completed",
+          "started_at": "2026-01-30T22:14:07.927581",
+          "completed_at": "2026-01-30T22:15:36.074731"
+        }
+      ],
+      "final_files": [
+        {
+          "filename": "main.md",
+          "file_type": "md",
+          "description": null
+        },
+        {
+          "filename": "races.md",
+          "file_type": "md",
+          "description": null
+        },
+        {
+          "filename": "classes.md",
+          "file_type": "md",
+          "description": null
+        },
+        {
+          "filename": "backgrounds.md",
+          "file_type": "md",
+          "description": null
+        },
+        {
+          "filename": "feats.md",
+          "file_type": "md",
+          "description": null
+        },
+        {
+          "filename": "main.md",
+          "file_type": "md",
+          "description": null
+        },
+        {
+          "filename": "races.md",
+          "file_type": "md",
+          "description": null
+        },
+        {
+          "filename": "classes.md",
+          "file_type": "md",
+          "description": null
+        },
+        {
+          "filename": "backgrounds.md",
+          "file_type": "md",
+          "description": null
+        },
+        {
+          "filename": "feats.md",
+          "file_type": "md",
+          "description": null
+        },
+        {
+          "filename": "approach.md",
+          "file_type": "md",
+          "description": null
+        },
+        {
+          "filename": "main.md",
+          "file_type": "md",
+          "description": null
+        },
+        {
+          "filename": "races.md",
+          "file_type": "md",
+          "description": null
+        },
+        {
+          "filename": "classes.md",
+          "file_type": "md",
+          "description": null
+        },
+        {
+          "filename": "backgrounds.md",
+          "file_type": "md",
+          "description": null
+        },
+        {
+          "filename": "feats.md",
+          "file_type": "md",
+          "description": null
+        }
+      ],
+      "error": null
+    }
+  ]
+}

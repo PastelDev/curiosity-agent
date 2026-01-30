@@ -12,7 +12,20 @@
       ],
       "created_at": "2026-01-29T22:21:34.882145",
       "metadata": {}
+    },
+    {
+      "id": "idea_f12db20f",
+      "entry_type": "idea",
+      "title": "Starting Aurathia World-Building Project",
+      "content": "Initiating development of Aurathia, a high fantasy planet with magical industrial solarpunk revolution theme (1800-1900s vibes). Key elements: magical technology, artificers, corruption in the dark. Todo list focuses on tournaments for plot hooks, NPCs/factions, tech trees first. Will create tournaments for HIGH priority tasks and update journal frequently.",
+      "tags": [
+        "aurathia",
+        "worldbuilding",
+        "start"
+      ],
+      "created_at": "2026-01-30T22:11:33.464641",
+      "metadata": {}
     }
   ],
-  "updated_at": "2026-01-29T22:21:34.882145"
+  "updated_at": "2026-01-30T22:11:33.464641"
 }

@@ -355,6 +355,10 @@ class BaseAgent(ABC):
         """Get list of registered tool names."""
         return list(self._tools.keys())
 
+    def get_tool(self, name: str) -> Optional[AgentTool]:
+        """Return the registered tool definition."""
+        return self._tools.get(name)
+
     async def execute_tool(self, name: str, arguments: dict) -> dict:
         """Execute a tool by name."""
         if name not in self._tools:
