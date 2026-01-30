@@ -30,8 +30,15 @@ class ToolRegistry:
     """
     Registry for all available tools.
     Handles loading, schema generation, and execution.
+
+    All tool calls require a 'tool_description' field that explains
+    what the agent is trying to accomplish with this tool call.
     """
-    
+
+    # Global flag to require descriptions on all tool calls
+    REQUIRE_DESCRIPTION = True
+    DESCRIPTION_FIELD_NAME = "tool_description"
+
     def __init__(
         self,
         tools_dir: str = "tools",
@@ -49,7 +56,7 @@ class ToolRegistry:
             self.tools_dir = (self.sandbox_root / self.tools_dir).resolve()
         else:
             self.tools_dir = self.tools_dir.resolve()
-        
+
         if self.sandbox_root and not self._is_within_sandbox(self.tools_dir):
             raise ValueError(f"tools_dir must be within sandbox root: {self.tools_dir}")
         self.tools: dict[str, Tool] = {}
@@ -207,42 +214,86 @@ class ToolRegistry:
         return list(self.tools.keys())
     
     def get_schemas(self, tool_names: Optional[list[str]] = None) -> list[dict]:
-        """Get OpenAI-format tool schemas for API calls."""
+        """
+        Get OpenAI-format tool schemas for API calls.
+
+        If REQUIRE_DESCRIPTION is True, adds a required 'tool_description' field
+        to all tool schemas so the agent must explain what it's doing.
+        """
         schemas = []
         for name, tool in self.tools.items():
             if tool_names and name not in tool_names:
                 continue
+
+            # Clone the parameters to avoid mutating the original
+            params = json.loads(json.dumps(tool.parameters))
+
+            # Add tool_description field if required
+            if self.REQUIRE_DESCRIPTION:
+                if "properties" not in params:
+                    params["properties"] = {}
+
+                params["properties"][self.DESCRIPTION_FIELD_NAME] = {
+                    "type": "string",
+                    "description": "A brief description of what you are doing with this tool call and why"
+                }
+
+                # Make it required
+                if "required" not in params:
+                    params["required"] = []
+                if self.DESCRIPTION_FIELD_NAME not in params["required"]:
+                    params["required"].append(self.DESCRIPTION_FIELD_NAME)
+
             schemas.append({
                 "type": "function",
                 "function": {
                     "name": tool.name,
                     "description": tool.description,
-                    "parameters": tool.parameters
+                    "parameters": params
                 }
             })
         return schemas
-    
+
+    def extract_description(self, arguments: dict) -> tuple[dict, Optional[str]]:
+        """
+        Extract the tool_description from arguments and return clean args.
+
+        Returns:
+            tuple of (cleaned_arguments, description)
+        """
+        description = arguments.pop(self.DESCRIPTION_FIELD_NAME, None)
+        return arguments, description
+
     async def execute(self, name: str, arguments: dict) -> dict:
         """
         Execute a tool by name.
-        
+
         Returns:
-            dict with 'success', 'result' or 'error'
+            dict with 'success', 'result' or 'error', and 'description' if provided
         """
         tool = self.get(name)
         if not tool:
             return {"success": False, "error": f"Unknown tool: {name}"}
-        
+
+        # Extract description before execution
+        clean_args, description = self.extract_description(arguments.copy())
+
         try:
             # Handle both sync and async execute functions
             if asyncio.iscoroutinefunction(tool.execute):
-                result = await tool.execute(arguments)
+                result = await tool.execute(clean_args)
             else:
-                result = tool.execute(arguments)
-            
-            return {"success": True, "result": result}
+                result = tool.execute(clean_args)
+
+            response = {"success": True, "result": result}
+            if description:
+                response["description"] = description
+            return response
         except Exception as e:
-            return {"success": False, "error": str(e)}
+            response = {"success": False, "error": str(e)}
+            if description:
+                response["description"] = description
+            return response
     
     def create_tool(
         self,

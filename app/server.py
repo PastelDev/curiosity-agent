@@ -4,7 +4,7 @@ FastAPI Server for Curiosity Agent Control Interface.
 
 import asyncio
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
@@ -18,6 +18,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from agent import CuriosityAgent
 from agent.chat_session import ChatSessionManager
+from agent.tournament import TournamentStatus
 
 
 # Global agent instance
@@ -82,6 +83,19 @@ class RestartRequest(BaseModel):
 class QueuePromptRequest(BaseModel):
     prompt: str
     priority: str = "normal"  # "normal" or "high"
+
+
+class TournamentCreateRequest(BaseModel):
+    topic: str
+    stages: Optional[List[int]] = None
+    debate_rounds: int = 2
+    auto_start: bool = True
+
+
+class SubagentRequest(BaseModel):
+    task: str
+    model: Optional[str] = None
+    timeout: int = 300
 
 
 # ==================== API Routes ====================
@@ -454,6 +468,269 @@ async def manage_todo(request: TodoRequest):
     raise HTTPException(status_code=400, detail=f"Unknown action: {request.action}")
 
 
+# ==================== Tournament ====================
+
+@app.get("/api/tournaments")
+async def list_tournaments():
+    """List all tournaments."""
+    if not agent:
+        raise HTTPException(status_code=500, detail="Agent not initialized")
+
+    tournaments = agent.tournament_engine.list_tournaments()
+    return {"tournaments": tournaments, "count": len(tournaments)}
+
+
+@app.post("/api/tournaments")
+async def create_tournament(request: TournamentCreateRequest):
+    """Create a new tournament."""
+    if not agent:
+        raise HTTPException(status_code=500, detail="Agent not initialized")
+
+    tournament = agent.tournament_engine.create_tournament(
+        topic=request.topic,
+        stages=request.stages,
+        debate_rounds=request.debate_rounds
+    )
+
+    if request.auto_start:
+        asyncio.create_task(agent.tournament_engine.run_tournament(tournament.id))
+
+    return {
+        "success": True,
+        "tournament_id": tournament.id,
+        "topic": request.topic,
+        "stages": tournament.stages,
+        "status": tournament.status.value,
+        "auto_started": request.auto_start
+    }
+
+
+@app.get("/api/tournaments/{tournament_id}")
+async def get_tournament(tournament_id: str):
+    """Get tournament details."""
+    if not agent:
+        raise HTTPException(status_code=500, detail="Agent not initialized")
+
+    tournament = agent.tournament_engine.get_tournament(tournament_id)
+    if not tournament:
+        raise HTTPException(status_code=404, detail="Tournament not found")
+
+    return tournament.to_dict()
+
+
+@app.post("/api/tournaments/{tournament_id}/start")
+async def start_tournament(tournament_id: str):
+    """Start a tournament."""
+    if not agent:
+        raise HTTPException(status_code=500, detail="Agent not initialized")
+
+    tournament = agent.tournament_engine.get_tournament(tournament_id)
+    if not tournament:
+        raise HTTPException(status_code=404, detail="Tournament not found")
+
+    if tournament.status != TournamentStatus.PENDING:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Tournament already {tournament.status.value}"
+        )
+
+    asyncio.create_task(agent.tournament_engine.run_tournament(tournament_id))
+    return {"status": "started", "tournament_id": tournament_id}
+
+
+@app.get("/api/tournaments/{tournament_id}/containers")
+async def get_tournament_containers(tournament_id: str):
+    """Get all containers for a tournament."""
+    if not agent:
+        raise HTTPException(status_code=500, detail="Agent not initialized")
+
+    tournament = agent.tournament_engine.get_tournament(tournament_id)
+    if not tournament:
+        raise HTTPException(status_code=404, detail="Tournament not found")
+
+    containers = tournament.get_all_containers()
+    return {
+        "containers": [c.to_dict() for c in containers],
+        "count": len(containers)
+    }
+
+
+@app.get("/api/tournaments/{tournament_id}/containers/{container_id}")
+async def get_container(tournament_id: str, container_id: str):
+    """Get a specific container."""
+    if not agent:
+        raise HTTPException(status_code=500, detail="Agent not initialized")
+
+    container = agent.tournament_engine.get_container(tournament_id, container_id)
+    if not container:
+        raise HTTPException(status_code=404, detail="Container not found")
+
+    return container.to_dict()
+
+
+@app.get("/api/tournaments/{tournament_id}/containers/{container_id}/logs")
+async def get_container_logs(tournament_id: str, container_id: str, limit: int = 100):
+    """Get logs for a container."""
+    if not agent:
+        raise HTTPException(status_code=500, detail="Agent not initialized")
+
+    logs = agent.tournament_engine.get_container_logs(tournament_id, container_id)
+    return {"logs": logs[-limit:], "total": len(logs)}
+
+
+@app.get("/api/tournaments/{tournament_id}/containers/{container_id}/files")
+async def get_container_files(tournament_id: str, container_id: str):
+    """Get files from a container."""
+    if not agent:
+        raise HTTPException(status_code=500, detail="Agent not initialized")
+
+    files = agent.tournament_engine.get_container_files(tournament_id, container_id)
+    return {"files": files, "count": len(files)}
+
+
+@app.get("/api/tournaments/{tournament_id}/results")
+async def get_tournament_results(tournament_id: str):
+    """Get tournament results (final files)."""
+    if not agent:
+        raise HTTPException(status_code=500, detail="Agent not initialized")
+
+    tournament = agent.tournament_engine.get_tournament(tournament_id)
+    if not tournament:
+        raise HTTPException(status_code=404, detail="Tournament not found")
+
+    return {
+        "status": tournament.status.value,
+        "final_files": [
+            {
+                "filename": f.filename,
+                "content": f.content,
+                "file_type": f.file_type,
+                "description": f.description,
+                "agent_id": f.agent_id
+            }
+            for f in tournament.final_files
+        ],
+        "count": len(tournament.final_files)
+    }
+
+
+# ==================== Subagent ====================
+
+@app.post("/api/subagent")
+async def call_subagent(request: SubagentRequest):
+    """Call a subagent to perform a task."""
+    if not agent:
+        raise HTTPException(status_code=500, detail="Agent not initialized")
+
+    result = await agent.tournament_engine.call_subagent(
+        task=request.task,
+        model=request.model,
+        timeout=request.timeout
+    )
+
+    return result
+
+
+# ==================== Enhanced Logs ====================
+
+@app.get("/api/logs/enhanced")
+async def get_enhanced_logs(
+    limit: int = 100,
+    offset: int = 0,
+    category: Optional[str] = None,
+    level: Optional[str] = None
+):
+    """Get enhanced logs with descriptions."""
+    if not agent:
+        raise HTTPException(status_code=500, detail="Agent not initialized")
+
+    entries = agent.enhanced_logger.get_entries(
+        limit=limit,
+        offset=offset,
+        category=category,
+        level=level
+    )
+
+    return {"logs": entries, "count": len(entries)}
+
+
+@app.get("/api/logs/tools")
+async def get_tool_logs(limit: int = 50):
+    """Get tool execution history."""
+    if not agent:
+        raise HTTPException(status_code=500, detail="Agent not initialized")
+
+    entries = agent.enhanced_logger.get_tool_history(limit=limit)
+    return {"logs": entries, "count": len(entries)}
+
+
+# ==================== File Preview ====================
+
+@app.get("/api/files/main")
+async def get_main_agent_files():
+    """Get files from main agent's sandbox."""
+    if not agent:
+        raise HTTPException(status_code=500, detail="Agent not initialized")
+
+    files = agent.log_manager.get_main_agent_files(
+        sandbox_path=agent.config.get("sandbox", {}).get("root", "agent_sandbox")
+    )
+
+    return {"files": files, "count": len(files)}
+
+
+@app.get("/api/files/main/{file_path:path}")
+async def get_main_agent_file(file_path: str):
+    """Get a specific file from main agent's sandbox."""
+    if not agent:
+        raise HTTPException(status_code=500, detail="Agent not initialized")
+
+    sandbox_root = Path(agent.config.get("sandbox", {}).get("root", "agent_sandbox"))
+    full_path = sandbox_root / file_path
+
+    # Security check - ensure path is within sandbox
+    try:
+        full_path.resolve().relative_to(sandbox_root.resolve())
+    except ValueError:
+        raise HTTPException(status_code=403, detail="Access denied")
+
+    if not full_path.exists():
+        raise HTTPException(status_code=404, detail="File not found")
+
+    try:
+        content = full_path.read_text()
+        return {
+            "path": file_path,
+            "content": content,
+            "size": full_path.stat().st_size,
+            "extension": full_path.suffix
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ==================== Container Logs via Log Manager ====================
+
+@app.get("/api/container-logs")
+async def list_container_logs():
+    """List all containers that have logs."""
+    if not agent:
+        raise HTTPException(status_code=500, detail="Agent not initialized")
+
+    container_ids = agent.log_manager.get_all_container_ids()
+    return {"container_ids": container_ids, "count": len(container_ids)}
+
+
+@app.get("/api/container-logs/{tournament_id}/{container_id}")
+async def get_container_logs_by_id(tournament_id: str, container_id: str, limit: int = 100):
+    """Get logs for a specific container from log manager."""
+    if not agent:
+        raise HTTPException(status_code=500, detail="Agent not initialized")
+
+    logs = agent.log_manager.get_container_logs(tournament_id, container_id, limit)
+    return {"logs": logs, "count": len(logs)}
+
+
 # ==================== WebSocket for real-time updates ====================
 
 class ConnectionManager:
@@ -490,11 +767,27 @@ async def websocket_endpoint(websocket: WebSocket):
                 status = agent.get_status()
                 todos = agent.todos.list_all()
                 queued_prompts = agent.get_queued_prompts()
+
+                # Get active tournaments
+                tournaments = agent.tournament_engine.list_tournaments()
+                active_tournaments = [
+                    t for t in tournaments
+                    if t.get("status") in ["running", "synthesis"]
+                ]
+
+                # Get recent enhanced logs
+                recent_logs = agent.enhanced_logger.get_entries(limit=10)
+
                 await websocket.send_json({
                     "type": "status",
                     "data": status,
                     "todos": todos,
-                    "queued_prompts": queued_prompts
+                    "queued_prompts": queued_prompts,
+                    "tournaments": {
+                        "active": active_tournaments,
+                        "total": len(tournaments)
+                    },
+                    "recent_logs": recent_logs
                 })
 
             await asyncio.sleep(1)

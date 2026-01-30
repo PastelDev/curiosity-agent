@@ -19,6 +19,8 @@ from .tool_registry import ToolRegistry, Tool
 from .questions_manager import QuestionsManager
 from .journal_manager import JournalManager
 from .todo_manager import TodoManager
+from .tournament import TournamentEngine, Tournament, TournamentStatus
+from .enhanced_logger import LogManager, MainAgentLogger
 
 
 # Configure logging
@@ -135,6 +137,21 @@ class CuriosityAgent:
         self.journal = JournalManager(
             structured_path=self.config["journal"]["structured_path"],
             freeform_path=self.config["journal"]["freeform_path"]
+        )
+
+        # Initialize enhanced logging
+        self.log_manager = LogManager(base_log_path="logs")
+        self.enhanced_logger = self.log_manager.get_main_logger()
+
+        # Initialize tournament engine
+        tournament_config = self.config.get("tournament", {})
+        self.tournament_engine = TournamentEngine(
+            client=self.client,
+            base_path="tournaments",
+            model=self.config["openrouter"]["models"].get("tournament",
+                   self.config["openrouter"]["models"]["main"]),
+            max_parallel=tournament_config.get("max_parallel_agents", 8),
+            timeout_per_agent=tournament_config.get("timeout_per_agent_seconds", 300)
         )
 
         self.state = AgentState()
@@ -359,6 +376,84 @@ Current threshold: {self.context.threshold * 100}% (you can adjust this)
             category="meta",
             protected=True
         ))
+
+        # Tournament creation tool
+        self.tools.register(Tool(
+            name="create_tournament",
+            description="Create a multi-agent tournament for collaborative problem solving. Agents work in parallel, then synthesize their outputs in rounds.",
+            parameters={
+                "type": "object",
+                "properties": {
+                    "topic": {"type": "string", "description": "The topic/task for agents to work on"},
+                    "stages": {
+                        "type": "array",
+                        "items": {"type": "integer"},
+                        "description": "Number of agents per round, e.g., [4, 3, 2] means 4 agents in round 1, 3 in round 2, 2 in final"
+                    },
+                    "debate_rounds": {"type": "integer", "default": 2, "description": "Number of debate rounds per stage"},
+                    "auto_start": {"type": "boolean", "default": True, "description": "Whether to start the tournament immediately"}
+                },
+                "required": ["topic"]
+            },
+            execute=self._execute_create_tournament,
+            category="meta",
+            protected=True
+        ))
+
+        # Tournament management tool
+        self.tools.register(Tool(
+            name="manage_tournament",
+            description="Manage tournaments: start, get_status, list_all, get_results",
+            parameters={
+                "type": "object",
+                "properties": {
+                    "action": {
+                        "type": "string",
+                        "enum": ["start", "get_status", "list_all", "get_results", "get_container_logs"]
+                    },
+                    "tournament_id": {"type": "string", "description": "Tournament ID for specific operations"},
+                    "container_id": {"type": "string", "description": "Container ID for get_container_logs"}
+                },
+                "required": ["action"]
+            },
+            execute=self._execute_manage_tournament,
+            category="meta",
+            protected=True
+        ))
+
+        # Subagent calling tool
+        self.tools.register(Tool(
+            name="call_subagent",
+            description="Call a single subagent to perform a task. The subagent runs in an isolated container and returns its output files.",
+            parameters={
+                "type": "object",
+                "properties": {
+                    "task": {"type": "string", "description": "The task for the subagent to perform"},
+                    "model": {"type": "string", "description": "Optional model to use (defaults to tournament model)"},
+                    "timeout": {"type": "integer", "default": 300, "description": "Timeout in seconds"}
+                },
+                "required": ["task"]
+            },
+            execute=self._execute_call_subagent,
+            category="meta",
+            protected=True
+        ))
+
+        # Action description tool
+        self.tools.register(Tool(
+            name="describe_action",
+            description="Provide a brief description of the action you just performed. Use this after completing tasks to help with logging.",
+            parameters={
+                "type": "object",
+                "properties": {
+                    "description": {"type": "string", "description": "A brief (1-2 sentence) description of what you just did"}
+                },
+                "required": ["description"]
+            },
+            execute=self._execute_describe_action,
+            category="meta",
+            protected=True
+        ))
     
     async def _execute_manage_context(self, params: dict) -> dict:
         """Execute context management actions."""
@@ -450,6 +545,172 @@ Current threshold: {self.context.threshold * 100}% (you can adjust this)
 
         return {"success": False, "error": f"Unknown action: {action}"}
 
+    async def _execute_create_tournament(self, params: dict) -> dict:
+        """Create and optionally start a tournament."""
+        topic = params.get("topic", "")
+        stages = params.get("stages")
+        debate_rounds = params.get("debate_rounds", 2)
+        auto_start = params.get("auto_start", True)
+
+        if not topic:
+            return {"success": False, "error": "Topic is required"}
+
+        # Use default stages from config if not provided
+        if not stages:
+            stages = self.config.get("tournament", {}).get("default_stages", [4, 3, 2])
+
+        tournament = self.tournament_engine.create_tournament(
+            topic=topic,
+            stages=stages,
+            debate_rounds=debate_rounds
+        )
+
+        self.enhanced_logger.log_system(
+            f"Created tournament: {tournament.id}",
+            description=f"Topic: {topic}, Stages: {stages}"
+        )
+
+        result = {
+            "success": True,
+            "tournament_id": tournament.id,
+            "topic": topic,
+            "stages": stages,
+            "status": tournament.status.value
+        }
+
+        if auto_start:
+            # Start tournament in background
+            asyncio.create_task(self._run_tournament_background(tournament.id))
+            result["message"] = "Tournament created and started"
+        else:
+            result["message"] = "Tournament created (use manage_tournament to start)"
+
+        return result
+
+    async def _run_tournament_background(self, tournament_id: str):
+        """Run a tournament in the background."""
+        try:
+            tournament = await self.tournament_engine.run_tournament(tournament_id)
+            self.enhanced_logger.log_system(
+                f"Tournament completed: {tournament_id}",
+                description=f"Status: {tournament.status.value}, Files: {len(tournament.final_files)}"
+            )
+        except Exception as e:
+            self.enhanced_logger.log_error(
+                f"Tournament failed: {tournament_id}",
+                description=str(e)
+            )
+
+    async def _execute_manage_tournament(self, params: dict) -> dict:
+        """Manage tournaments."""
+        action = params.get("action")
+        tournament_id = params.get("tournament_id")
+
+        if action == "list_all":
+            tournaments = self.tournament_engine.list_tournaments()
+            return {
+                "success": True,
+                "tournaments": tournaments,
+                "count": len(tournaments)
+            }
+
+        elif action == "get_status":
+            if not tournament_id:
+                return {"success": False, "error": "tournament_id required"}
+            tournament = self.tournament_engine.get_tournament(tournament_id)
+            if not tournament:
+                return {"success": False, "error": "Tournament not found"}
+            return {
+                "success": True,
+                "tournament": tournament.to_dict()
+            }
+
+        elif action == "start":
+            if not tournament_id:
+                return {"success": False, "error": "tournament_id required"}
+            tournament = self.tournament_engine.get_tournament(tournament_id)
+            if not tournament:
+                return {"success": False, "error": "Tournament not found"}
+            if tournament.status != TournamentStatus.PENDING:
+                return {"success": False, "error": f"Tournament already {tournament.status.value}"}
+
+            asyncio.create_task(self._run_tournament_background(tournament_id))
+            return {"success": True, "message": "Tournament started"}
+
+        elif action == "get_results":
+            if not tournament_id:
+                return {"success": False, "error": "tournament_id required"}
+            tournament = self.tournament_engine.get_tournament(tournament_id)
+            if not tournament:
+                return {"success": False, "error": "Tournament not found"}
+
+            return {
+                "success": True,
+                "status": tournament.status.value,
+                "final_files": [
+                    {
+                        "filename": f.filename,
+                        "content": f.content[:2000],  # Truncate for response
+                        "file_type": f.file_type,
+                        "description": f.description
+                    }
+                    for f in tournament.final_files
+                ]
+            }
+
+        elif action == "get_container_logs":
+            if not tournament_id:
+                return {"success": False, "error": "tournament_id required"}
+            container_id = params.get("container_id")
+            if not container_id:
+                return {"success": False, "error": "container_id required"}
+
+            logs = self.tournament_engine.get_container_logs(tournament_id, container_id)
+            return {
+                "success": True,
+                "logs": logs
+            }
+
+        return {"success": False, "error": f"Unknown action: {action}"}
+
+    async def _execute_call_subagent(self, params: dict) -> dict:
+        """Call a subagent to perform a task."""
+        task = params.get("task", "")
+        model = params.get("model")
+        timeout = params.get("timeout", 300)
+
+        if not task:
+            return {"success": False, "error": "Task is required"}
+
+        self.enhanced_logger.log_system(
+            f"Calling subagent",
+            description=f"Task: {task[:100]}..."
+        )
+
+        result = await self.tournament_engine.call_subagent(
+            task=task,
+            model=model,
+            timeout=timeout
+        )
+
+        self.enhanced_logger.log_system(
+            f"Subagent completed: {result.get('container_id', 'unknown')}",
+            description=f"Success: {result.get('success')}, Files: {len(result.get('revealed_files', []))}"
+        )
+
+        return result
+
+    def _execute_describe_action(self, params: dict) -> dict:
+        """Add a description to the last action."""
+        description = params.get("description", "")
+
+        if not description:
+            return {"success": False, "error": "Description is required"}
+
+        self.enhanced_logger.add_description_to_last_action(description)
+
+        return {"success": True, "message": "Description added to last action"}
+
     async def step(self) -> dict:
         """Execute one iteration of the agent loop."""
         step_info = {
@@ -509,28 +770,59 @@ Current threshold: {self.context.threshold * 100}% (you can adjust this)
             # 4. Process response
             if response.tool_calls:
                 for tool_call in response.tool_calls:
-                    logger.info(f"Tool call: {tool_call.name}")
-                    
+                    # Extract the agent's description of what they're doing
+                    tool_description = tool_call.arguments.get("tool_description", "")
+                    logger.info(f"Tool call: {tool_call.name} | {tool_description}")
+
+                    # Enhanced logging for tool call with agent's description
+                    self.enhanced_logger.log_action_start(
+                        action_type="tool_call",
+                        details=tool_call.name,
+                        tool_name=tool_call.name,
+                        tool_args=tool_call.arguments
+                    )
+                    # Add the description immediately
+                    if tool_description:
+                        self.enhanced_logger.add_description_to_last_action(tool_description)
+
                     # Add tool call to context
                     self.context.append_tool_call(
                         tool_call.id,
                         tool_call.name,
                         tool_call.arguments
                     )
-                    
-                    # Execute tool
+
+                    # Execute tool (description is extracted inside execute)
                     result = await self.tools.execute(tool_call.name, tool_call.arguments)
-                    result_str = json.dumps(result, indent=2, default=str)
-                    
+
+                    # Get description from result if not already set
+                    result_description = result.get("description", tool_description)
+
+                    # Remove description from result for cleaner output
+                    result_for_context = {k: v for k, v in result.items() if k != "description"}
+                    result_str = json.dumps(result_for_context, indent=2, default=str)
+
+                    # Enhanced logging for tool result with description
+                    files_affected = []
+                    if tool_call.name in ["write_file", "read_file"]:
+                        files_affected = [tool_call.arguments.get("path", tool_call.arguments.get("filename", ""))]
+                    self.enhanced_logger.log_tool_result(
+                        tool_name=tool_call.name,
+                        result=result_for_context,
+                        description=result_description,
+                        files_affected=files_affected
+                    )
+
                     # Add result to context
                     self.context.append_tool_result(tool_call.id, result_str)
-                    
+
                     step_info["actions"].append({
                         "type": "tool_call",
                         "tool": tool_call.name,
+                        "description": result_description,
                         "success": result.get("success", True)
                     })
-                    
+
                     self.state.last_action = f"tool:{tool_call.name}"
             
             elif response.content:
