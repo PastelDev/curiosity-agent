@@ -16,9 +16,8 @@ import json
 import sys
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from agent import CuriosityAgent
+from agent import CuriosityAgent, TournamentStatus
 from agent.chat_session import ChatSessionManager
-from agent.tournament import TournamentStatus
 
 
 # Global agent instance
@@ -748,7 +747,7 @@ class ConnectionManager:
         for connection in self.active_connections:
             try:
                 await connection.send_json(message)
-            except:
+            except Exception:
                 pass
 
 

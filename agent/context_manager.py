@@ -4,12 +4,15 @@ Tracks context usage and handles automatic compaction.
 """
 
 import json
+import logging
+from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
-from dataclasses import dataclass, field, asdict
 
 from .openrouter_client import OpenRouterClient, count_messages_tokens
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -68,7 +71,7 @@ class ContextManager:
                 self.compaction_count = data.get("compaction_count", 0)
                 self.last_compacted_at = data.get("last_compacted_at")
             except Exception as e:
-                print(f"Warning: Could not load context state: {e}")
+                logger.warning(f"Could not load context state: {e}")
     
     def save_state(self):
         """Save state to JSON file."""

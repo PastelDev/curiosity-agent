@@ -13,13 +13,16 @@ All agent types (MainAgent, TournamentAgent, SubAgent) inherit from this.
 
 import asyncio
 import json
+import logging
+import os
+import subprocess
+import tempfile
 import uuid
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime
 from pathlib import Path
 from typing import Optional, Callable, Any
-import logging
 
 from .openrouter_client import OpenRouterClient, ChatResponse
 from .context_manager import ContextManager
@@ -276,10 +279,6 @@ class BaseAgent(ABC):
             self.log("INFO", f"Saved code to {save_as}")
 
         try:
-            import subprocess
-            import tempfile
-            import os
-
             # Create a temporary file for the code
             with tempfile.NamedTemporaryFile(
                 mode='w',

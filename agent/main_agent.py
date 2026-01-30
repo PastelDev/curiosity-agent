@@ -192,8 +192,7 @@ class MainAgent(BaseAgent):
 
     def _import_core_tools(self):
         """Import core tools from tool registry into agent tools."""
-        # Get core tools from registry and convert to AgentTools
-        for tool in self.tool_registry._tools.values():
+        for tool in self.tool_registry.get_all_tools():
             self.register_tool(AgentTool(
                 name=tool.name,
                 description=tool.description,

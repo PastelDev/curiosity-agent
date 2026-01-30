@@ -4,11 +4,12 @@ Handles persistent knowledge storage in structured and freeform formats.
 """
 
 import json
+import re
+import uuid
+from dataclasses import dataclass, asdict
 from datetime import datetime
 from pathlib import Path
 from typing import Optional, Literal
-from dataclasses import dataclass, asdict
-import uuid
 
 
 EntryType = Literal["idea", "empirical_result", "tool_spec", "failed_attempt", "freeform"]
@@ -220,7 +221,6 @@ class JournalManager:
     
     def _slugify(self, text: str) -> str:
         """Convert text to filename-safe slug."""
-        import re
         text = text.lower()
         text = re.sub(r'[^\w\s-]', '', text)
         text = re.sub(r'[-\s]+', '-', text)
