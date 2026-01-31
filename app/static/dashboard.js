@@ -46,6 +46,7 @@
     journalEntries: document.getElementById('journal-entries'),
     goalDisplay: document.getElementById('goal-display'),
     goalEdit: document.getElementById('goal-edit'),
+    goalWarning: document.getElementById('goal-warning'),
     goalView: document.getElementById('goal-view'),
     goalEditor: document.getElementById('goal-editor'),
     goalEditBtn: document.getElementById('goal-edit-btn'),
@@ -74,6 +75,14 @@
     restartKeepContext: document.getElementById('restart-keep-context'),
     restartConfirmBtn: document.getElementById('restart-confirm-btn'),
     restartCancelBtn: document.getElementById('restart-cancel-btn'),
+    // Factory reset modal elements
+    factoryResetBtn: document.getElementById('factory-reset-btn'),
+    factoryResetModal: document.getElementById('factory-reset-modal'),
+    factoryResetModalClose: document.getElementById('factory-reset-modal-close'),
+    factoryResetConfirm: document.getElementById('factory-reset-confirm'),
+    factoryResetConfirmBtn: document.getElementById('factory-reset-confirm-btn'),
+    factoryResetBackupBtn: document.getElementById('factory-reset-backup-btn'),
+    factoryResetCancelBtn: document.getElementById('factory-reset-cancel-btn'),
     // Chat elements
     chatNewBtn: document.getElementById('chat-new-btn'),
     chatSessionSelect: document.getElementById('chat-session-select'),
@@ -132,10 +141,35 @@
   };
 
   let logsAutoRefreshInterval = null;
+  let tournamentAutoRefreshInterval = null;
 
   function formatNumber(value) {
     const number = Number(value || 0);
     return Number.isFinite(number) ? number.toLocaleString() : '0';
+  }
+
+  function isGoalEmpty() {
+    return !state.goal || !state.goal.trim();
+  }
+
+  function updateStartAvailability() {
+    const statusValue = (state.status && state.status.status) || 'unknown';
+    const isRunning = statusValue === 'running';
+    const goalEmpty = isGoalEmpty();
+
+    if (ui.btnStart) {
+      ui.btnStart.disabled = isRunning || goalEmpty;
+      ui.btnStart.title = goalEmpty ? 'Set a goal to start the agent.' : '';
+    }
+
+    if (ui.btnRestart) {
+      ui.btnRestart.disabled = goalEmpty;
+      ui.btnRestart.title = goalEmpty ? 'Set a goal to restart the agent.' : '';
+    }
+
+    if (ui.goalWarning) {
+      ui.goalWarning.classList.toggle('is-hidden', !goalEmpty);
+    }
   }
 
   function setStatusClasses(status) {
@@ -188,10 +222,8 @@
       : 0;
     updateContextUsage(usage);
 
-    const isRunning = statusValue === 'running';
     const isPaused = statusValue === 'paused';
 
-    if (ui.btnStart) ui.btnStart.disabled = isRunning;
     if (ui.btnStop) ui.btnStop.disabled = statusValue === 'stopped';
 
     if (ui.btnPause) {
@@ -200,6 +232,8 @@
       ui.btnPause.classList.toggle('btn-warning', !isPaused);
       ui.btnPause.disabled = statusValue === 'stopped';
     }
+
+    updateStartAvailability();
   }
 
   function createElement(tag, className, text) {
@@ -207,6 +241,32 @@
     if (className) el.className = className;
     if (typeof text !== 'undefined') el.textContent = text;
     return el;
+  }
+
+  async function readErrorMessage(res) {
+    try {
+      const data = await res.json();
+      return data.detail || data.error || 'Request failed.';
+    } catch (e) {
+      return 'Request failed.';
+    }
+  }
+
+  function getDownloadFilename(headers, fallback) {
+    const disposition = headers.get('content-disposition') || '';
+    const match = /filename=\"([^\"]+)\"/.exec(disposition);
+    return match ? match[1] : fallback;
+  }
+
+  function downloadBlob(blob, filename) {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
   }
 
   // ==================== Tab Switching ====================
@@ -271,6 +331,8 @@
         fetchFiles();
         break;
     }
+
+    setupTournamentAutoRefresh(tabName === 'tournament');
   }
 
   // ==================== Todos ====================
@@ -423,6 +485,17 @@
     }
   }
 
+  function setupTournamentAutoRefresh(isActive) {
+    if (tournamentAutoRefreshInterval) {
+      clearInterval(tournamentAutoRefreshInterval);
+      tournamentAutoRefreshInterval = null;
+    }
+
+    if (isActive) {
+      tournamentAutoRefreshInterval = setInterval(refreshTournamentData, 2000);
+    }
+  }
+
   // ==================== Questions ====================
 
   function renderQuestions() {
@@ -532,6 +605,7 @@
   function renderGoal() {
     if (ui.goalDisplay) ui.goalDisplay.textContent = state.goal || 'No goal set.';
     if (ui.goalEdit) ui.goalEdit.value = state.goal || '';
+    updateStartAvailability();
   }
 
   // ==================== Tools ====================
@@ -641,11 +715,22 @@
   // ==================== Actions ====================
 
   async function startAgent() {
-    await fetch('/api/start', { 
+    if (isGoalEmpty()) {
+      alert('Set a goal before starting the agent.');
+      return;
+    }
+
+    const res = await fetch('/api/start', { 
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({})
     });
+
+    if (!res.ok) {
+      alert(await readErrorMessage(res));
+      return;
+    }
+
     await fetchStatus();
   }
 
@@ -794,13 +879,70 @@
 
     closeRestartModal();
 
-    await fetch('/api/restart', {
+    if (isGoalEmpty()) {
+      alert('Set a goal before restarting the agent.');
+      return;
+    }
+
+    const res = await fetch('/api/restart', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ prompt: prompt || null, keep_context: keepContext })
     });
 
+    if (!res.ok) {
+      alert(await readErrorMessage(res));
+      return;
+    }
+
     await fetchStatus();
+  }
+
+  // ==================== Factory Reset ====================
+
+  function showFactoryResetModal() {
+    if (!ui.factoryResetModal) return;
+    ui.factoryResetModal.classList.add('active');
+    if (ui.factoryResetConfirm) ui.factoryResetConfirm.checked = false;
+    updateFactoryResetActions();
+  }
+
+  function closeFactoryResetModal() {
+    if (ui.factoryResetModal) ui.factoryResetModal.classList.remove('active');
+  }
+
+  function updateFactoryResetActions() {
+    const confirmed = ui.factoryResetConfirm && ui.factoryResetConfirm.checked;
+    if (ui.factoryResetConfirmBtn) ui.factoryResetConfirmBtn.disabled = !confirmed;
+    if (ui.factoryResetBackupBtn) ui.factoryResetBackupBtn.disabled = !confirmed;
+  }
+
+  async function runFactoryReset(withBackup) {
+    if (!ui.factoryResetConfirm || !ui.factoryResetConfirm.checked) return;
+
+    const res = await fetch('/api/factory-reset', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ confirm: true, backup: Boolean(withBackup) })
+    });
+
+    if (!res.ok) {
+      alert(await readErrorMessage(res));
+      return;
+    }
+
+    if (withBackup) {
+      const blob = await res.blob();
+      const filename = getDownloadFilename(res.headers, 'curiosity-agent-backup.zip');
+      downloadBlob(blob, filename);
+    } else {
+      await res.json().catch(() => ({}));
+    }
+
+    closeFactoryResetModal();
+    await fetchAll();
+    await fetchStatus();
+    alert('Factory reset complete.');
   }
 
   // ==================== Chat ====================
@@ -948,6 +1090,14 @@
     }
   }
 
+  async function refreshTournamentData() {
+    if (state.currentTournament) {
+      await refreshTournamentDetail();
+      return;
+    }
+    await fetchTournaments();
+  }
+
   function renderTournaments() {
     if (!ui.tournamentList) return;
 
@@ -993,6 +1143,25 @@
     }
   }
 
+  async function refreshTournamentDetail() {
+    const t = state.currentTournament;
+    if (!t) return;
+    try {
+      const res = await fetch(`/api/tournaments/${t.id}`);
+      if (!res.ok) return;
+      state.currentTournament = await res.json();
+      renderTournamentDetail();
+      if (state.currentContainer) {
+        const containerId = state.currentContainer.id || state.currentContainer.agent_id;
+        if (containerId) {
+          await loadContainerDetail(containerId);
+        }
+      }
+    } catch (e) {
+      console.error('Failed to refresh tournament:', e);
+    }
+  }
+
   function renderTournamentDetail() {
     const t = state.currentTournament;
     if (!t) return;
@@ -1022,17 +1191,22 @@
               <span class="status-pill status-${round.status}">${round.status}</span>
             </div>
             <div class="synthesis-round-containers">
-              ${(round.containers || []).map(c => `
-                <div class="container-card" data-container-id="${c.id}">
+              ${(round.containers || round.agents || []).map(c => {
+                const containerId = c.id || c.agent_id || '';
+                const containerStatus = c.status || 'unknown';
+                const revealedCount = c.revealed_files ? c.revealed_files.length : 0;
+                return `
+                <div class="container-card" data-container-id="${containerId}">
                   <div class="container-card-header">
-                    <span class="container-card-id">${c.id.substring(0, 12)}</span>
-                    <span class="status-pill status-${c.status}">${c.status}</span>
+                    <span class="container-card-id">${containerId.substring(0, 12)}</span>
+                    <span class="status-pill status-${containerStatus}">${containerStatus}</span>
                   </div>
                   <div class="container-card-meta">
-                    Files: ${c.revealed_files ? c.revealed_files.length : 0} revealed
+                    Files: ${revealedCount} revealed
                   </div>
                 </div>
-              `).join('')}
+              `;
+              }).join('')}
             </div>
           </div>
         `).join('');
@@ -1066,12 +1240,27 @@
     }
   }
 
-  function showFinalFile(filename) {
+  function showFinalFile(filename, fileOverride = null) {
     const t = state.currentTournament;
     if (!t) return;
 
-    const file = t.final_files.find(f => f.filename === filename);
+    const file = fileOverride || t.final_files.find(f => f.filename === filename);
     if (!file) return;
+
+    if (!file.content) {
+      fetch(`/api/tournaments/${t.id}/results`)
+        .then(res => res.ok ? res.json() : null)
+        .then(data => {
+          if (!data || !Array.isArray(data.final_files)) return;
+          state.currentTournament.final_files = data.final_files;
+          const updated = data.final_files.find(f => f.filename === filename);
+          if (updated) {
+            showFinalFile(updated.filename || filename, updated);
+          }
+        })
+        .catch(() => {});
+      return;
+    }
 
     // Show in modal
     if (ui.entryModalTitle) ui.entryModalTitle.textContent = file.filename;
@@ -1117,6 +1306,21 @@
             <div class="container-log-time">${formatTime(log.timestamp)}</div>
             <div class="container-log-message">${escapeHtml(log.message)}</div>
             ${log.description ? `<div class="container-log-description">${escapeHtml(log.description)}</div>` : ''}
+          </div>
+        `).join('');
+      }
+    }
+
+    // Render files
+    if (ui.containerFiles) {
+      const files = c.files || [];
+      if (files.length === 0) {
+        ui.containerFiles.innerHTML = '<div class="section-note">No files yet.</div>';
+      } else {
+        ui.containerFiles.innerHTML = files.map(f => `
+          <div class="container-file-item">
+            <div class="container-file-name">${escapeHtml(f.path || 'file')}</div>
+            <div class="container-file-size">${formatFileSize(f.size || 0)}</div>
           </div>
         `).join('');
       }
@@ -1485,6 +1689,19 @@
     if (ui.restartModal) {
       ui.restartModal.addEventListener('click', (e) => {
         if (e.target === ui.restartModal) closeRestartModal();
+      });
+    }
+
+    // Factory reset modal
+    if (ui.factoryResetBtn) ui.factoryResetBtn.addEventListener('click', showFactoryResetModal);
+    if (ui.factoryResetModalClose) ui.factoryResetModalClose.addEventListener('click', closeFactoryResetModal);
+    if (ui.factoryResetCancelBtn) ui.factoryResetCancelBtn.addEventListener('click', closeFactoryResetModal);
+    if (ui.factoryResetConfirm) ui.factoryResetConfirm.addEventListener('change', updateFactoryResetActions);
+    if (ui.factoryResetConfirmBtn) ui.factoryResetConfirmBtn.addEventListener('click', () => runFactoryReset(false));
+    if (ui.factoryResetBackupBtn) ui.factoryResetBackupBtn.addEventListener('click', () => runFactoryReset(true));
+    if (ui.factoryResetModal) {
+      ui.factoryResetModal.addEventListener('click', (e) => {
+        if (e.target === ui.factoryResetModal) closeFactoryResetModal();
       });
     }
 

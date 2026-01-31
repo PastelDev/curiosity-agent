@@ -394,6 +394,21 @@ Review these carefully and create improved, synthesized outputs."""
         """Get all files revealed by this agent."""
         return self.revealed_files.copy()
 
+    def _serialize_revealed_files(self, include_content: bool = False) -> list[dict]:
+        files = []
+        for revealed in self.revealed_files:
+            entry = {
+                "filename": revealed.get("filename"),
+                "file_type": revealed.get("file_type"),
+                "description": revealed.get("description"),
+                "agent_id": revealed.get("agent_id"),
+                "revealed_at": revealed.get("revealed_at")
+            }
+            if include_content:
+                entry["content"] = revealed.get("content")
+            files.append(entry)
+        return files
+
     def get_container_files(self) -> list[dict]:
         """Get all files in the container workspace."""
         files = []
@@ -410,3 +425,32 @@ Review these carefully and create improved, synthesized outputs."""
                     "size": path.stat().st_size
                 })
         return files
+
+    def to_dict(
+        self,
+        include_logs: bool = False,
+        include_files: bool = False,
+        include_revealed: bool = True,
+        revealed_with_content: bool = False
+    ) -> dict:
+        data = {
+            "id": self.agent_id,
+            "agent_id": self.agent_id,
+            "agent_type": self.agent_type,
+            "status": self.state.status,
+            "turn_count": self.state.turn_count,
+            "started_at": self.state.started_at,
+            "completed_at": self.state.completed_at,
+            "error": self.state.error
+        }
+
+        if include_revealed:
+            data["revealed_files"] = self._serialize_revealed_files(include_content=revealed_with_content)
+
+        if include_logs:
+            data["logs"] = self.get_logs()
+
+        if include_files:
+            data["files"] = self.get_container_files()
+
+        return data

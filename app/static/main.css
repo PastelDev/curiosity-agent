@@ -346,6 +346,12 @@ nav.top-nav {
   color: var(--white-dim);
 }
 
+.badge-danger {
+  background: rgba(255, 122, 122, 0.15);
+  border-color: rgba(255, 122, 122, 0.4);
+  color: var(--accent-red);
+}
+
 .status-list {
   display: grid;
   gap: 0.75rem;
@@ -519,6 +525,16 @@ textarea:focus {
 .section-note {
   font-size: 0.8rem;
   color: var(--white-dim);
+}
+
+.goal-warning {
+  margin-bottom: 1rem;
+  padding: 0.75rem 0.9rem;
+  border-radius: 12px;
+  background: rgba(255, 211, 107, 0.12);
+  border: 1px solid rgba(255, 211, 107, 0.35);
+  color: var(--accent-yellow);
+  font-size: 0.85rem;
 }
 
 .stats-grid {
@@ -1149,6 +1165,40 @@ textarea:focus {
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
+}
+
+.reset-block {
+  margin-top: 1.25rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(176, 138, 240, 0.15);
+}
+
+.reset-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--white-dim);
+}
+
+.reset-warning {
+  background: rgba(255, 122, 122, 0.08);
+  border: 1px solid rgba(255, 122, 122, 0.3);
+  border-radius: 12px;
+  padding: 0.75rem 0.9rem;
+  margin-bottom: 1rem;
+  color: var(--white-soft);
+  font-size: 0.9rem;
+}
+
+.reset-warning p + p {
+  margin-top: 0.5rem;
+}
+
+.reset-confirm {
+  margin-top: 0.25rem;
 }
 
 /* ==================== Chat Panel ==================== */

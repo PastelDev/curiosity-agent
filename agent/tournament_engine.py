@@ -55,10 +55,17 @@ class SynthesisRound:
     completed_at: Optional[str] = None
 
     def to_dict(self) -> dict:
+        containers = []
+        for agent in self.agents:
+            if hasattr(agent, "to_dict"):
+                containers.append(agent.to_dict(include_logs=False, include_files=False, include_revealed=True))
+            else:
+                containers.append({"id": agent.agent_id, "status": agent.state.status})
         return {
             "round_number": self.round_number,
             "agent_count": self.agent_count,
             "agents": [a.get_status() for a in self.agents],
+            "containers": containers,
             "input_files_count": len(self.input_files),
             "status": self.status,
             "started_at": self.started_at,
@@ -84,6 +91,7 @@ class Tournament:
     error: Optional[str] = None
 
     def to_dict(self) -> dict:
+        container_count = sum(len(r.agents) for r in self.synthesis_rounds)
         return {
             "id": self.id,
             "topic": self.topic,
@@ -96,6 +104,7 @@ class Tournament:
             "started_at": self.started_at,
             "completed_at": self.completed_at,
             "synthesis_rounds": [r.to_dict() for r in self.synthesis_rounds],
+            "container_count": container_count,
             "final_files": [
                 {
                     "filename": f.filename,
@@ -106,6 +115,19 @@ class Tournament:
             ],
             "error": self.error
         }
+
+    def get_all_containers(self) -> list[TournamentAgent]:
+        containers = []
+        for round in self.synthesis_rounds:
+            containers.extend(round.agents)
+        return containers
+
+    def get_container(self, container_id: str) -> Optional[TournamentAgent]:
+        for round in self.synthesis_rounds:
+            for agent in round.agents:
+                if agent.agent_id == container_id:
+                    return agent
+        return None
 
 
 class TournamentEngine:
@@ -430,6 +452,13 @@ class TournamentEngine:
     def get_tournament(self, tournament_id: str) -> Optional[Tournament]:
         """Get a tournament by ID."""
         return self.tournaments.get(tournament_id)
+
+    def get_container(self, tournament_id: str, container_id: str) -> Optional[TournamentAgent]:
+        """Get a specific container agent by ID."""
+        tournament = self.tournaments.get(tournament_id)
+        if not tournament:
+            return None
+        return tournament.get_container(container_id)
 
     def list_tournaments(self) -> list[dict]:
         """List all tournaments."""

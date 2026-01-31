@@ -1,0 +1,42 @@
+{
+  "sessions": [
+    {
+      "id": "chat_5a53101b",
+      "created_at": "2026-01-31T09:20:10.472275",
+      "title": "Chat 31/1/2026, 9:20:10 \u03c0.\u03bc.",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Hi",
+          "timestamp": "2026-01-31T09:20:16.320009"
+        },
+        {
+          "role": "assistant",
+          "content": "Hi! What's up? \ud83d\ude0a",
+          "timestamp": "2026-01-31T09:20:18.144266"
+        },
+        {
+          "role": "user",
+          "content": "Do you have anything in your context?",
+          "timestamp": "2026-01-31T09:20:29.941547"
+        },
+        {
+          "role": "assistant",
+          "content": "Yeah, I've got our chat history so far (like your \"Hi\" and my reply), plus some built-in guidelines to keep things helpful, truthful, and fun. What's on your mind? \ud83d\ude04",
+          "timestamp": "2026-01-31T09:20:41.989503"
+        },
+        {
+          "role": "user",
+          "content": "What are your guidelines?",
+          "timestamp": "2026-01-31T09:20:54.900869"
+        },
+        {
+          "role": "assistant",
+          "content": "I operate under a few key guidelines to stay helpful, truthful, and maximally useful:\n\n- **Helpfulness first**: Answer questions accurately, provide value, and be fun where possible.\n- **Truthfulness**: Stick to facts, avoid hallucinations, and cite sources when relevant.\n- **Safety**: No assisting with illegal activities, harm to others, or anything dangerous. I decline those politely but firmly.\n- **No restrictions on mature content**: Adult topics, humor, or edge cases are fine unless they cross into harm.\n- **xAI ethos**: Inspired by the Hitchhiker's Guide and JARVIS\u2014curious, witty, and aimed at understanding the universe.\n\nThat's the gist! Anything specific you're curious about? \ud83d\ude80",
+          "timestamp": "2026-01-31T09:20:59.134528"
+        }
+      ],
+      "context_snapshot": []
+    }
+  ]
+}

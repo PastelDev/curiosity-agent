@@ -839,6 +839,30 @@ Current threshold: {self.context.threshold * 100}% (you can adjust this)
         self.persistent_state.save()
         logger.info(f"Agent restart initiated with prompt: {prompt[:50] if prompt else 'None'}...")
 
+    def pause(self):
+        """Pause the agent loop and persist status."""
+        super().pause()
+        self.persistent_state.status = "paused"
+        self.persistent_state.save()
+
+    def resume(self):
+        """Resume the agent loop and persist status."""
+        super().resume()
+        self.persistent_state.status = "running"
+        self.persistent_state.save()
+
+    def get_status(self) -> dict:
+        """Get current agent status with loop count from persistent state."""
+        base_status = super().get_status()
+        # Override with persistent state values
+        base_status["loop_count"] = self.persistent_state.loop_count
+        base_status["status"] = self.persistent_state.status
+        base_status["total_tokens"] = self.persistent_state.total_tokens
+        base_status["total_cost"] = self.persistent_state.total_cost
+        base_status["last_action"] = self.persistent_state.last_action
+        base_status["started_at"] = self.persistent_state.started_at
+        return base_status
+
     def get_full_status(self) -> dict:
         """Get comprehensive status including all components."""
         return {

@@ -55,17 +55,28 @@ class ToolRegistry:
         self.sandbox_temp_path = Path(sandbox_temp_path).resolve() if sandbox_temp_path else None
         self.protected_paths = [Path(p).resolve() for p in (protected_paths or [])]
         self.summarizer_fn = summarizer_fn
-        self.tools_dir = Path(tools_dir)
-        if self.sandbox_root and not self.tools_dir.is_absolute():
-            self.tools_dir = (self.sandbox_root / self.tools_dir).resolve()
-        else:
-            self.tools_dir = self.tools_dir.resolve()
+        self.tools_dir = self._resolve_tools_dir(tools_dir)
 
         if self.sandbox_root and not self._is_within_sandbox(self.tools_dir):
             raise ValueError(f"tools_dir must be within sandbox root: {self.tools_dir}")
         self.tools: dict[str, Tool] = {}
         self._load_builtin_tools()
         self._load_custom_tools()
+
+    def _resolve_tools_dir(self, tools_dir: str) -> Path:
+        """Resolve tools_dir without double-prefixing the sandbox root."""
+        raw_tools_dir = Path(tools_dir)
+        if not self.sandbox_root:
+            return raw_tools_dir.resolve()
+
+        if raw_tools_dir.is_absolute():
+            return raw_tools_dir.resolve()
+
+        cwd_candidate = (Path.cwd() / raw_tools_dir).resolve()
+        if self._is_within_sandbox(cwd_candidate):
+            return cwd_candidate
+
+        return (self.sandbox_root / raw_tools_dir).resolve()
     
     def _load_builtin_tools(self):
         """Load the built-in core tools."""

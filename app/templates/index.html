@@ -64,11 +64,11 @@
     <div class="tab-panels">
       <!-- Status sidebar - always visible -->
       <aside class="status-sidebar">
-        <section class="panel status-panel">
-          <div class="panel-header">
-            <h2>Status</h2>
-            <span class="status-pill" id="status-pill">unknown</span>
-          </div>
+      <section class="panel status-panel">
+        <div class="panel-header">
+          <h2>Status</h2>
+          <span class="status-pill" id="status-pill">unknown</span>
+        </div>
           <div class="status-list">
             <div class="status-item">
               <span class="label">Loop Count</span>
@@ -113,6 +113,15 @@
               </div>
             </div>
           </div>
+
+          <div class="reset-block">
+            <div class="reset-header">
+              <span>Factory Reset</span>
+              <span class="badge badge-danger">destructive</span>
+            </div>
+            <p class="section-note">Clear logs, memory, sandboxes, and tournaments back to defaults.</p>
+            <button class="btn btn-danger btn-sm" id="factory-reset-btn">Factory Reset</button>
+          </div>
         </section>
       </aside>
 
@@ -123,6 +132,7 @@
             <h2>Current Goal</h2>
             <button class="btn btn-ghost" id="goal-edit-btn">Edit</button>
           </div>
+          <div class="goal-warning is-hidden" id="goal-warning">Set a goal to enable Start and Restart.</div>
           <div id="goal-view">
             <pre class="goal-content" id="goal-display"></pre>
           </div>
@@ -443,6 +453,30 @@
         <div class="goal-actions" style="margin-top: 1rem;">
           <button class="btn btn-warning" id="restart-confirm-btn">Restart Agent</button>
           <button class="btn btn-ghost" id="restart-cancel-btn">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="factory-reset-modal" aria-hidden="true">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">Factory Reset</div>
+        <button class="modal-close" id="factory-reset-modal-close" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="reset-warning">
+          <p>This wipes all agent data: logs, journal, questions, tournaments, sandboxes, and context.</p>
+          <p>This action cannot be undone.</p>
+        </div>
+        <label class="toggle reset-confirm">
+          <input type="checkbox" id="factory-reset-confirm">
+          <span>I understand this deletes all agent data.</span>
+        </label>
+        <div class="goal-actions" style="margin-top: 1rem;">
+          <button class="btn btn-warning" id="factory-reset-backup-btn" disabled>Download Backup + Reset</button>
+          <button class="btn btn-danger" id="factory-reset-confirm-btn" disabled>Reset Now</button>
+          <button class="btn btn-ghost" id="factory-reset-cancel-btn">Cancel</button>
         </div>
       </div>
     </div>

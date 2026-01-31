@@ -35,10 +35,10 @@ Get a free key at [openrouter.ai](https://openrouter.ai)
 
 ```bash
 # Start the web interface
-python -m app.server
+python run.py
 
-# Or run the agent directly
-python -m agent.loop
+# Or run the agent directly (CLI mode)
+python run.py --cli
 ```
 
 ### 4. Open the Dashboard
@@ -77,7 +77,6 @@ curiosity-agent/
 │   ├── tournament_agent.py   # Tournament participant agent
 │   ├── sub_agent.py          # One-off task agent (with variants)
 │   ├── tournament_engine.py  # Tournament execution manager
-│   ├── loop.py               # Agent loop runner
 │   ├── context_manager.py    # Context tracking & compaction
 │   ├── tool_registry.py      # Tool loading & execution (MainAgent)
 │   ├── questions_manager.py  # Async user Q&A
@@ -89,10 +88,7 @@ curiosity-agent/
 │   ├── templates/            # HTML templates
 │   └── static/               # CSS/JS assets
 │
-├── tools/                    # Tool definitions (for MainAgent)
-│   ├── core/                 # Protected core tools
-│   ├── meta/                 # Self-modification tools
-│   ├── output/               # Artifact creation
+├── tools/                    # Custom tools (legacy)
 │   └── custom/               # Agent-created tools
 │
 ├── skills/                   # Skill library (prompts, workflows)
@@ -100,7 +96,7 @@ curiosity-agent/
 │   ├── structured/           # JSON entries by type
 │   └── freeform/             # Markdown exploration notes
 │
-├── workspace/                # Agent's working directory
+├── agent_sandbox/                # Agent's working directory
 ├── questions/                # Pending user questions
 ├── config/                   # Configuration files
 │   ├── settings.yaml         # Main config
@@ -259,7 +255,7 @@ Each `TournamentAgent` runs in an isolated workspace:
 ```
 tournaments/tournament_<id>/
 ├── stage_<N>_agent_<M>/
-│   ├── workspace/        # Agent's working directory
+│   ├── agent_sandbox/        # Agent's working directory
 │   ├── revealed/         # Files shared via reveal() tool
 │   ├── logs/             # Agent execution logs
 │   └── context_state.json
@@ -304,12 +300,14 @@ The agent maintains a persistent knowledge base:
 | `/api/stop` | POST | Stop agent loop |
 | `/api/pause` | POST | Pause agent |
 | `/api/resume` | POST | Resume agent |
+| `/api/restart` | POST | Restart agent loop |
 | `/api/compact` | POST | Force context compaction |
 | `/api/questions` | GET | List all questions |
 | `/api/questions/answer` | POST | Answer a question |
 | `/api/journal` | GET | Search journal |
 | `/api/goal` | GET/POST | View/update goal |
 | `/api/tools` | GET | List all tools |
+| `/api/factory-reset` | POST | Reset agent data to defaults |
 | `/ws` | WebSocket | Real-time status updates |
 
 ## Free Models on OpenRouter
@@ -363,7 +361,7 @@ result = await engine.run_tournament(
 
 ### Adding a Custom Tool
 
-Create `tools/custom/my_tool.json`:
+Create `agent_sandbox/tools/custom/my_tool.json`:
 ```json
 {
     "name": "my_tool",
@@ -378,7 +376,7 @@ Create `tools/custom/my_tool.json`:
 }
 ```
 
-Create `tools/custom/my_tool.py`:
+Create `agent_sandbox/tools/custom/my_tool.py`:
 ```python
 async def execute(params: dict) -> str:
     return f"Processed: {params['input']}"
