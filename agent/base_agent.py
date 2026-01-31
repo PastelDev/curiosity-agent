@@ -178,20 +178,39 @@ class BaseAgent(ABC):
 
     def _register_core_tools(self):
         """Register tools available to all agents."""
-        # Complete task tool - allows agent to signal completion
+        # Complete task tool - allows agent to signal completion with verification
         self.register_tool(AgentTool(
             name="complete_task",
-            description="Signal that you have completed your task. Call this when your work is done. This will end your execution.",
+            description="""Signal task completion. BEFORE calling this, you MUST:
+1. Have attempted at least 3 iterations of improvement on your work
+2. Have documented findings in the journal
+3. Be able to justify why no further improvements are possible
+4. Consider if a tournament could provide better results
+This will PAUSE execution. Prefer to keep iterating unless truly blocked.""",
             parameters={
                 "type": "object",
                 "properties": {
                     "reason": {
                         "type": "string",
-                        "description": "Why the task is complete (success, blocked, need_input, etc.)"
+                        "enum": ["goal_achieved", "blocked_need_input", "max_iterations", "error"],
+                        "description": "Why the task is complete"
                     },
                     "summary": {
                         "type": "string",
-                        "description": "Brief summary of what was accomplished"
+                        "description": "Detailed summary of what was accomplished"
+                    },
+                    "improvement_attempts": {
+                        "type": "integer",
+                        "description": "Number of improvement iterations attempted (minimum 3 required for goal_achieved)"
+                    },
+                    "justification": {
+                        "type": "string",
+                        "description": "Why no further improvements are possible (minimum 50 chars)"
+                    },
+                    "journal_entries": {
+                        "type": "array",
+                        "items": {"type": "string"},
+                        "description": "IDs of journal entries documenting this work"
                     },
                     "output": {
                         "type": "object",
@@ -199,7 +218,7 @@ class BaseAgent(ABC):
                         "additionalProperties": True
                     }
                 },
-                "required": ["reason", "summary"]
+                "required": ["reason", "summary", "improvement_attempts", "justification"]
             },
             execute=self._execute_complete_task,
             category="lifecycle",
@@ -388,27 +407,57 @@ class BaseAgent(ABC):
             return {"success": False, "error": str(e), "description": description}
 
     async def _execute_complete_task(self, params: dict) -> dict:
-        """Execute the complete_task tool - signals agent is done."""
-        reason = params.get("reason", "completed")
+        """Execute the complete_task tool with verification requirements."""
+        reason = params.get("reason", "goal_achieved")
         summary = params.get("summary", "")
+        improvement_attempts = params.get("improvement_attempts", 0)
+        justification = params.get("justification", "")
+        journal_entries = params.get("journal_entries", [])
         output = params.get("output", {})
 
+        # Verification checks for goal_achieved - block premature completion
+        if reason == "goal_achieved":
+            warnings = []
+
+            if improvement_attempts < 3:
+                warnings.append(f"Only {improvement_attempts} improvement iterations. Need at least 3 before completion.")
+
+            if not journal_entries:
+                warnings.append("No journal entries documented. Write to journal to record your work before completing.")
+
+            if len(justification) < 50:
+                warnings.append("Justification too brief. Explain in detail (50+ chars) why no further improvements are possible.")
+
+            # If there are warnings, block completion and return guidance
+            if warnings:
+                return {
+                    "success": False,
+                    "message": "Completion blocked - address these issues first:",
+                    "warnings": warnings,
+                    "suggestion": "Keep iterating and improving, or use reason='blocked_need_input' if you need user guidance to proceed."
+                }
+
+        # Proceed with completion
         self._completion_reason = reason
         self._completion_output = {
             "reason": reason,
             "summary": summary,
+            "improvement_attempts": improvement_attempts,
+            "justification": justification,
+            "journal_entries": journal_entries,
             "output": output
         }
         self._completed = True
         self._completion_event.set()
 
         self.log("INFO", f"Agent signaled completion: {reason}",
-                description=summary)
+                description=f"After {improvement_attempts} iterations: {summary}")
 
         return {
             "success": True,
-            "message": "Task marked as complete. Execution will end after this turn.",
-            "reason": reason
+            "message": "Task marked as complete. Execution will pause after this turn.",
+            "reason": reason,
+            "improvement_attempts": improvement_attempts
         }
 
     async def _execute_manage_context(self, params: dict) -> dict:

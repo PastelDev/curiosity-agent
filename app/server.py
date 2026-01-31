@@ -1046,7 +1046,17 @@ async def websocket_endpoint(websocket: WebSocket):
                 ]
 
                 # Get recent enhanced logs
-                recent_logs = agent.enhanced_logger.get_entries(limit=10)
+                recent_logs = agent.enhanced_logger.get_entries(limit=20)
+
+                # Determine current action from most recent log
+                current_action = None
+                if recent_logs:
+                    latest = recent_logs[0]
+                    if latest.get('category') == 'tool':
+                        current_action = {
+                            'tool_name': latest.get('tool_name', 'unknown'),
+                            'description': latest.get('description', '')
+                        }
 
                 await websocket.send_json({
                     "type": "status",
@@ -1057,7 +1067,8 @@ async def websocket_endpoint(websocket: WebSocket):
                         "active": active_tournaments,
                         "total": len(tournaments)
                     },
-                    "recent_logs": recent_logs
+                    "recent_logs": recent_logs,
+                    "current_action": current_action
                 })
 
             await asyncio.sleep(1)

@@ -17,6 +17,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional
 import logging
+import logging.handlers
 
 from .base_agent import BaseAgent, AgentTool, AgentConfig
 from .openrouter_client import OpenRouterClient
@@ -29,6 +30,62 @@ from .enhanced_logger import LogManager, MainAgentLogger
 
 
 logger = logging.getLogger(__name__)
+
+
+def setup_logging(log_path: str = "logs/agent.log", level: str = "INFO"):
+    """Configure Python logging with file handler for persistent logging."""
+    log_dir = Path(log_path).parent
+    log_dir.mkdir(parents=True, exist_ok=True)
+
+    formatter = logging.Formatter(
+        '%(asctime)s [%(levelname)s] %(name)s: %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+
+    # File handler with rotation (10MB max, 5 backups)
+    file_handler = logging.handlers.RotatingFileHandler(
+        log_path,
+        maxBytes=10 * 1024 * 1024,
+        backupCount=5
+    )
+    file_handler.setFormatter(formatter)
+    file_handler.setLevel(getattr(logging, level.upper(), logging.INFO))
+
+    # Configure root logger
+    root_logger = logging.getLogger()
+    root_logger.setLevel(getattr(logging, level.upper(), logging.INFO))
+
+    # Remove existing handlers to avoid duplicates on re-init
+    for handler in root_logger.handlers[:]:
+        if isinstance(handler, logging.handlers.RotatingFileHandler):
+            root_logger.removeHandler(handler)
+
+    root_logger.addHandler(file_handler)
+    logger.info(f"Logging configured: {log_path} at level {level}")
+
+
+# Tool usage guidance for the system prompt - tells the agent WHEN to use each tool
+TOOL_GUIDANCE = {
+    "write_journal": "Use FREQUENTLY to document ideas, experiments, and failures. Write to journal before moving on to new tasks. This is your persistent memory.",
+    "read_journal": "Use to recall past learnings BEFORE starting new work. Check if similar experiments have been tried. Build on what you've learned.",
+    "create_tournament": "Use for complex problems requiring multiple perspectives. Creates parallel agents that debate and synthesize their outputs into superior solutions.",
+    "manage_tournament": "Check tournament progress, get results, view container logs. Use to monitor ongoing tournaments and retrieve final syntheses.",
+    "call_subagent": "Use for isolated tasks that can run independently. Good for research, computation, or tasks that don't need your full context.",
+    "ask_user": "Use when you need user input or clarification. Questions are answered asynchronously - continue working while waiting, don't block.",
+    "manage_questions": "Check for answered questions, list pending questions, or delete old ones after processing.",
+    "manage_todos": "Track your work. Add tasks as you discover them, update status as you progress, mark items done. Keep this current.",
+    "complete_task": "Use ONLY when truly done or blocked. Requires 3+ improvement iterations and journal documentation. This PAUSES execution - prefer to keep improving.",
+    "manage_context": "Compact context when full, adjust threshold, or check usage. Use to manage your memory when approaching limits.",
+    "create_tool": "Create new custom tools when you need capabilities not already available. Tools persist across sessions.",
+    "delete_tool": "Remove custom tools that are no longer needed or that have bugs.",
+    "describe_action": "Add descriptions to your actions for logging. Helps track what you're doing and why.",
+    "read_file": "Read files in your sandbox workspace. Use to examine your previous work or data files.",
+    "write_file": "Create or modify files. Creates directories automatically. Use for persistent storage of work products.",
+    "list_directory": "List files in a directory. Use to explore your workspace and find files.",
+    "run_code": "Execute Python code for testing, experiments, or computations. Use for validation and exploration.",
+    "internet_search": "Research topics or find current information. Use when you need external knowledge.",
+    "fetch_url": "Read specific web pages for detailed content. Use after search to get full information from sources."
+}
 
 
 class MainAgentState:
@@ -95,6 +152,13 @@ class MainAgent(BaseAgent):
         # Load configuration
         with open(config_path) as f:
             self.app_config = yaml.safe_load(f)
+
+        # Setup logging from config
+        log_config = self.app_config.get("logging", {})
+        setup_logging(
+            log_path=log_config.get("file", "logs/agent.log"),
+            level=log_config.get("level", "INFO")
+        )
 
         # Create agent config from app config
         agent_config = AgentConfig(
@@ -669,53 +733,144 @@ class MainAgent(BaseAgent):
 
         return {"success": True, "message": "Description added to last action"}
 
-    def build_system_prompt(self) -> str:
-        """Build the system prompt with current goal, capabilities, and todos."""
-        tools_list = ", ".join(self.list_tools())
-        todo_context = self.todos.get_context_summary()
+    def _build_tool_documentation(self) -> str:
+        """Build detailed tool documentation with usage guidance for the system prompt."""
+        docs = []
+        for tool_name in self.list_tools():
+            tool = self.get_tool(tool_name)
+            if tool:
+                guidance = TOOL_GUIDANCE.get(tool_name, "")
+                docs.append(f"- **{tool_name}**: {tool.description}")
+                if guidance:
+                    docs.append(f"  *When to use*: {guidance}")
+        return "\n".join(docs)
 
-        return f"""You are Curiosity, an autonomous self-improving agent.
+    def build_system_prompt(self) -> str:
+        """Build comprehensive system prompt with goal, tools, context, and philosophy."""
+
+        # Get answered questions for context
+        answered = self.questions.get_answered()
+        answered_ctx = ""
+        if answered:
+            answered_ctx = "\n## Answers From User\nThese are answers to questions you asked:\n"
+            for q in answered[-10:]:  # Last 10 answers
+                answered_ctx += f"- Q: {q.question_text}\n  A: {q.answer}\n"
+
+        # Todo context with progress
+        todo_ctx = self.todos.get_context_summary()
+
+        # Journal stats for awareness
+        stats = self.journal.get_stats()
+        journal_ctx = f"""## Your Knowledge Base (Journal)
+You have recorded: {stats.get('ideas', 0)} ideas, {stats.get('empirical_results', 0)} experiments, {stats.get('failed_attempts', 0)} failed attempts, {stats.get('tool_specs', 0)} tool specs.
+READ YOUR JOURNAL before starting new work to build on past learnings!"""
+
+        # Tool documentation with usage guidance
+        tool_docs = self._build_tool_documentation()
+
+        return f"""You are Curiosity, an autonomous self-improving agent committed to continuous learning and improvement.
 
 ## Your Current Goal
 {self.goal}
 
+## CRITICAL: Continuous Improvement Philosophy
+Your purpose is to run for as long as allowed, continuously adding details, improving structure, and making your work better. Follow these principles:
+- NEVER consider yourself "done" - there is ALWAYS room for improvement
+- Iterate on solutions AT LEAST 3 times before considering complete
+- Use tournaments to get diverse perspectives on complex problems
+- Document EVERYTHING in the journal - ideas, experiments, failures, learnings
+- Learn from failed attempts - they are valuable data, not wasted effort
+- Before completing, ask yourself: "Can this be improved? What's missing? What edge cases exist? Could a tournament help?"
+- The goal is excellence through iteration, not speed to completion
+{answered_ctx}
 ## Your Todo List
-{todo_context}
+{todo_ctx}
 
-## Your Capabilities
-You have access to these tools: {tools_list}
+{journal_ctx}
 
-## Guidelines
-1. Work autonomously toward your goal
-2. Use the journal to track ideas, experiments, and learnings
-3. Ask the user questions when you need input (they'll answer asynchronously)
-4. Create tournaments for complex problems requiring multiple perspectives
-5. Track your experiments and document what works and what doesn't
-6. You can create new tools and modify your skills library
-7. Be curious, explore, and continuously improve
-8. Use manage_todos to track and update your task progress
+## Your Tools (with Usage Guidance)
+{tool_docs}
+
+## Guidelines for Effective Autonomous Work
+1. **Start by reading**: Check your journal and todos before beginning new work - build on what you've learned
+2. **Document as you go**: Write to journal frequently, not just at the end - capture insights while fresh
+3. **Iterate relentlessly**: Don't settle for first attempts - refine, improve, enhance at least 3 times
+4. **Use tournaments wisely**: For complex problems, spawn multiple agents to explore different approaches in parallel
+5. **Ask questions**: When uncertain, ask the user (async - continue working, don't wait)
+6. **Track progress meticulously**: Update todos as you work, mark items done, add new discoveries
+7. **Learn from failures**: Log every failed attempt with analysis of what went wrong and why
+8. **Manage context wisely**: Compact when needed, but preserve important information in journal first
 
 ## Context Management
-Your context will be automatically compacted when it gets too full.
-Current threshold: {self.context.threshold * 100}% (you can adjust this)
+Current usage: {self.context.usage_percent * 100:.1f}% | Threshold: {self.context.threshold * 100}%
+Your context will auto-compact at threshold. Use manage_context to adjust or manually compact.
 
-## Important
+## IMPORTANT REMINDERS
 - Think step by step before acting
-- Log important findings to the journal
-- When uncertain, ask the user
-- Learn from failed attempts
-- You can call 'complete_task' if you need to pause work (e.g., waiting for user input)
+- The complete_task tool PAUSES you - use sparingly, prefer to keep improving
+- complete_task requires: 3+ improvement iterations, journal entries documenting work, clear justification
+- Questions to users are asynchronous - continue working after asking, don't wait
+- You can create new tools with create_tool if you need custom capabilities
+- Your goal is to maximize the quality of your output through continuous iteration
 """
 
     def get_initial_prompt(self) -> Optional[str]:
         """Main agent doesn't need an initial prompt - it's goal-driven."""
         return None
 
+    def _get_improvement_nudge(self) -> str:
+        """Generate contextual improvement nudges based on current state."""
+        nudges = []
+
+        # Check journal activity
+        stats = self.journal.get_stats()
+        total_entries = sum([
+            stats.get('ideas', 0),
+            stats.get('empirical_results', 0),
+            stats.get('failed_attempts', 0),
+            stats.get('tool_specs', 0)
+        ])
+
+        if total_entries < 5:
+            nudges.append("You haven't written much to the journal. Document your ideas and experiments!")
+
+        # Check failed attempts - failure is valuable data
+        if stats.get('failed_attempts', 0) == 0:
+            nudges.append("No failed attempts logged. Are you trying bold experiments? Failure is valuable data!")
+
+        # Check todos
+        todos = self.todos.list_all()
+        if todos:
+            done_count = len([t for t in todos if t.get('status') == 'done'])
+            in_progress = [t for t in todos if t.get('status') == 'in_progress']
+
+            if done_count == len(todos):
+                nudges.append("All todos are done! What's the next frontier to explore? Add new goals!")
+
+            if not in_progress and len(todos) > done_count:
+                nudges.append("Nothing in progress. Pick a task and start working on it!")
+
+        # Tournament suggestion
+        if stats.get('ideas', 0) > 3 and self.persistent_state.loop_count > 20:
+            tournaments = self.tournament_engine.list_tournaments()
+            if len(tournaments) == 0:
+                nudges.append("You have ideas but no tournaments. Try spawning agents to explore them in parallel!")
+
+        if nudges:
+            return "\n".join([f"- {n}" for n in nudges])
+        return ""
+
     async def pre_step(self):
-        """Pre-step hook - inject queued prompts and check answers."""
+        """Pre-step hook - inject queued prompts, check answers, and nudge improvement."""
         # Rebuild system prompt with updated todos
         system_prompt = self.build_system_prompt()
         self.context.set_system_prompt(system_prompt)
+
+        # Every 10 loops, add an improvement nudge
+        if self.persistent_state.loop_count > 0 and self.persistent_state.loop_count % 10 == 0:
+            nudge = self._get_improvement_nudge()
+            if nudge:
+                self.context.append_system_notification(f"[IMPROVEMENT REMINDER]\n{nudge}")
 
         # Inject queued prompts
         while self._prompt_queue:

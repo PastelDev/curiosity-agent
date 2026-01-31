@@ -1,4 +1,98 @@
 {
-  "entries": [],
-  "updated_at": "2026-01-31T09:20:00.382752"
+  "entries": [
+    {
+      "id": "empi_c7d5560d",
+      "entry_type": "empirical_result",
+      "title": "File system fix experiment with run_code bash",
+      "content": "bash rm -f world; mkdir world returned exit 0 but didn't fix (still error on write). Likely sandbox limitations or path issues. Now trying python os.remove and makedirs for better control.",
+      "tags": [
+        "tools",
+        "file_io",
+        "experiment"
+      ],
+      "created_at": "2026-01-31T10:05:31.030355",
+      "metadata": {}
+    },
+    {
+      "id": "empi_caa7e1f8",
+      "entry_type": "empirical_result",
+      "title": "Tournament Insights from agent_fc62b93a Logs",
+      "content": "Extracted rich content from tournament agent logs (files revealed): approach.md (iteration strategy), world_history.md (timeline with Greening revolution), magic_tech.md (sun crystals table, vine comms, mana uncertainty d20), locations.md (Solara Prime districts table), races.md (Florakin, Crystalli, Vinekin traits), npcs.md (Elara Sunweaver, Thornak), mechanics.md (Mana Uncertainty table, Sunlight EP), campaigns.md (Crystal Heist arc). Excellent solarpunk DnD elements: urban-rural tension, strategic resources. Will synthesize into core world files for iteration 1. Tournament still running for more.",
+      "tags": [
+        "tournament",
+        "inspirations",
+        "synthesis"
+      ],
+      "created_at": "2026-01-31T10:05:55.621097",
+      "metadata": {}
+    },
+    {
+      "id": "empi_edbf920a",
+      "entry_type": "empirical_result",
+      "title": "World Synthesis Iteration 1 Complete",
+      "content": "Created world_synthesis_v1.md blending tournament ideas (Solara Prime, Florakin races, mana d20, EP system, campaigns) with my Aetherial history/cosmology. Covers all categories in structured MD with tables. Strong solarpunk-magitech theme: sustainable crystal/vine tech vs uncertainty risks. Next: Iterate to v2 (detail expansion), v3 (mechanics full, NPCs stats). Files readable in sandbox.",
+      "tags": [
+        "synthesis",
+        "iteration1",
+        "worldbuilding"
+      ],
+      "created_at": "2026-01-31T10:06:06.565673",
+      "metadata": {}
+    },
+    {
+      "id": "empi_548ed508",
+      "entry_type": "empirical_result",
+      "title": "Synthesis Iteration 2: v2 Enhancements",
+      "content": "world_synthesis_v2.md: Added Flux table, expanded districts/NPCs with hooks/stats, race table w/strategic traits, item table, campaign summaries. World name Verdant Aetheria. Builds on v1 + tournament logs (Elara, Thornak, EP system). Deeper DnD integration (DCs, d100 wild). Preps for v3: Full mechanics doc, NPC statblocks, campaigns detailed. 2/3 iterations done.",
+      "tags": [
+        "synthesis",
+        "iteration2",
+        "worldbuilding"
+      ],
+      "created_at": "2026-01-31T10:06:24.113900",
+      "metadata": {}
+    },
+    {
+      "id": "empi_4ed255b5",
+      "entry_type": "empirical_result",
+      "title": "Synthesis Iteration 3 Complete - World Core Established",
+      "content": "world_synthesis_v3.md is a full, detailed DnD-ready world bible: pantheon/DnD stats/ASCII map/wild table tease/EP mechanics/3 campaigns/edge cases/tables everywhere. 3 iterations exceeded: v1 merge, v2 expand, v3 polish/stats/maps. Tournament round1 complete (4 agents, files revealed), round2 debating (3 agents). Strategic depth high (uncertainty DC scaling, EP positioning). Missing: Full wild d100, more cities/adventures, balance sims. Next: Extract other agent logs, split into category files, iter locations/mechanics.",
+      "tags": [
+        "synthesis",
+        "iteration3",
+        "worldbuilding",
+        "tournament"
+      ],
+      "created_at": "2026-01-31T10:07:04.229706",
+      "metadata": {}
+    },
+    {
+      "id": "empi_e776bae0",
+      "entry_type": "empirical_result",
+      "title": "Locations Subtask Complete - 3 Iterations",
+      "content": "world_locations_v3.md: Ultra-detailed Verdantspire (district ASII/maps/d20 tables/factions), Thornwild/Aquavine full. Iter1: Base tables, Iter2: Hazards/economy/encounters/travel, Iter3: Calendar/edges/plots/inter-city. Strategic (Flux positioning), diverse cultures implied. Builds on all agents (Aetherbloom->Verdantspire, Sunvine->Thornwild). Ready for races. Tournament round2 ongoing for more insights.",
+      "tags": [
+        "locations",
+        "iteration3",
+        "worldbuilding"
+      ],
+      "created_at": "2026-01-31T10:07:56.948106",
+      "metadata": {}
+    },
+    {
+      "id": "empi_77f7fe39",
+      "entry_type": "empirical_result",
+      "title": "Mechanics Subtask Complete - 3 Iterations + Sim",
+      "content": "world_mechanics_v3.md: Python sim confirms balance (65% success, 18% weak/wild). Full d100 wild, 15+ items, 5 backgrounds/feats, subclass teases, combat flow, edges (eclipse/underwater). Iter1 core rules/tables, Iter2 d100/ex/combos, Iter3 sims/full options. Ties races/locations (EP sun-pos, Flux cities). Highly strategic (mgmt/risk), creative (quantum unc), balanced/DM-ready. Python code reusable.",
+      "tags": [
+        "mechanics",
+        "iteration3",
+        "balance",
+        "python"
+      ],
+      "created_at": "2026-01-31T10:09:52.316251",
+      "metadata": {}
+    }
+  ],
+  "updated_at": "2026-01-31T10:09:52.316251"
 }

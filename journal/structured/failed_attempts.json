@@ -1,4 +1,31 @@
 {
-  "entries": [],
-  "updated_at": "2026-01-31T09:20:00.382752"
+  "entries": [
+    {
+      "id": "fail_33e3887c",
+      "entry_type": "failed_attempt",
+      "title": "Internet searches for inspirations returned no results",
+      "content": "Multiple internet_search calls on solarpunk fantasy, magitech DnD, etc., all returned 'No results found'. Possible tool limitation or query issues. Need to rely on subagents, tournaments, or internal generation for ideas. Learn: Broaden queries or use subagents for research.",
+      "tags": [
+        "research",
+        "failure",
+        "tools"
+      ],
+      "created_at": "2026-01-31T10:04:38.469020",
+      "metadata": {}
+    },
+    {
+      "id": "fail_fbfc01a9",
+      "entry_type": "failed_attempt",
+      "title": "File write errors for world directories",
+      "content": "write_file to 'world/' succeeded but created ? , subsequent writes to world/*.md failed with WinError 183 (file already exists for directory). Likely tool created a file named 'world' instead of directory, or permission issue. Learn: Use list_directory before writing, avoid empty content for dirs, perhaps use run_code to mkdir.",
+      "tags": [
+        "tools",
+        "file_io",
+        "failure"
+      ],
+      "created_at": "2026-01-31T10:05:05.413016",
+      "metadata": {}
+    }
+  ],
+  "updated_at": "2026-01-31T10:05:05.413016"
 }

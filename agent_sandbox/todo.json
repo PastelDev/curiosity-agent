@@ -1,4 +1,118 @@
 {
-  "items": [],
-  "updated_at": "2026-01-31T09:20:00.382752"
+  "items": [
+    {
+      "id": "todo_d8eff913",
+      "title": "Initialize DnD-Style RPG World Creation",
+      "description": "Break down the goal into manageable subtasks: world history, locations, NPCs, mechanics, character options, campaigns. Start with research and initial outlining.",
+      "status": "in_progress",
+      "priority": "critical",
+      "created_at": "2026-01-31T10:04:13.803680",
+      "updated_at": "2026-01-31T10:04:24.296259",
+      "due_date": null,
+      "parent_id": null,
+      "subtasks": [
+        {
+          "id": "sub_c9f20b48",
+          "title": "Research Inspirations",
+          "description": "Use internet_search and subagents to gather ideas on solarpunk, magitech, DnD worldbuilding.",
+          "status": "done",
+          "priority": "critical",
+          "created_at": "2026-01-31T10:04:24.285260",
+          "updated_at": "2026-01-31T10:06:06.554469",
+          "due_date": null,
+          "parent_id": "todo_d8eff913",
+          "subtasks": [],
+          "tags": [],
+          "notes": ""
+        },
+        {
+          "id": "sub_33cd146e",
+          "title": "Outline World History and Cosmology",
+          "description": "Develop detailed history, pantheon, key events leading to magitech revolution.",
+          "status": "done",
+          "priority": "critical",
+          "created_at": "2026-01-31T10:04:24.285763",
+          "updated_at": "2026-01-31T10:07:04.219631",
+          "due_date": null,
+          "parent_id": "todo_d8eff913",
+          "subtasks": [],
+          "tags": [],
+          "notes": ""
+        },
+        {
+          "id": "sub_b6337c47",
+          "title": "Detail Major Locations",
+          "description": "Create big cities with solarpunk magitech, districts, features.",
+          "status": "done",
+          "priority": "critical",
+          "created_at": "2026-01-31T10:04:24.285763",
+          "updated_at": "2026-01-31T10:07:56.938192",
+          "due_date": null,
+          "parent_id": "todo_d8eff913",
+          "subtasks": [],
+          "tags": [],
+          "notes": ""
+        },
+        {
+          "id": "sub_039229cb",
+          "title": "Develop Races and Cultures",
+          "description": "Diverse races adapted to magitech world.",
+          "status": "done",
+          "priority": "critical",
+          "created_at": "2026-01-31T10:04:24.290729",
+          "updated_at": "2026-01-31T10:08:44.334914",
+          "due_date": null,
+          "parent_id": "todo_d8eff913",
+          "subtasks": [],
+          "tags": [],
+          "notes": ""
+        },
+        {
+          "id": "sub_ddf0e7e0",
+          "title": "Create Game Mechanics and Character Options",
+          "description": "Adapt D&D 5.5e with creative magitech systems.",
+          "status": "done",
+          "priority": "critical",
+          "created_at": "2026-01-31T10:04:24.292758",
+          "updated_at": "2026-01-31T10:09:52.306138",
+          "due_date": null,
+          "parent_id": "todo_d8eff913",
+          "subtasks": [],
+          "tags": [],
+          "notes": ""
+        },
+        {
+          "id": "sub_ec986e15",
+          "title": "Design Key NPCs",
+          "description": "Important characters with backstories, stats.",
+          "status": "done",
+          "priority": "critical",
+          "created_at": "2026-01-31T10:04:24.295786",
+          "updated_at": "2026-01-31T10:10:38.278086",
+          "due_date": null,
+          "parent_id": "todo_d8eff913",
+          "subtasks": [],
+          "tags": [],
+          "notes": ""
+        },
+        {
+          "id": "sub_7e54f7aa",
+          "title": "Develop Campaigns and Adventures",
+          "description": "Multi-level campaigns tying into world lore.",
+          "status": "in_progress",
+          "priority": "critical",
+          "created_at": "2026-01-31T10:04:24.296259",
+          "updated_at": "2026-01-31T10:10:47.243464",
+          "due_date": null,
+          "parent_id": "todo_d8eff913",
+          "subtasks": [],
+          "tags": [],
+          "notes": ""
+        }
+      ],
+      "tags": [],
+      "notes": ""
+    }
+  ],
+  "updated_at": "2026-01-31T10:10:47.245362"
 }

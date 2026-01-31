@@ -589,10 +589,21 @@
       return;
     }
 
-    entries.slice(0, 10).forEach((entry) => {
+    // Show more entries (25 instead of 10) with content preview
+    entries.slice(0, 25).forEach((entry) => {
       const card = createElement('div', 'entry-card');
       const title = createElement('div', 'entry-title', entry.title || 'Untitled');
       const meta = createElement('div', 'entry-meta', entry.entry_type || 'entry');
+
+      // Add content preview (first 200 chars)
+      if (entry.content) {
+        const previewText = entry.content.length > 200
+          ? entry.content.substring(0, 200) + '...'
+          : entry.content;
+        const preview = createElement('div', 'entry-preview', previewText);
+        card.appendChild(preview);
+      }
+
       card.appendChild(title);
       card.appendChild(meta);
       card.addEventListener('click', () => showEntry(entry));
@@ -783,9 +794,39 @@
     ui.goalView.classList.toggle('is-hidden', shouldShow);
   }
 
-  function showEntry(entry) {
-    if (ui.entryModalTitle) ui.entryModalTitle.textContent = entry.title || 'Journal entry';
-    if (ui.entryModalBody) ui.entryModalBody.textContent = entry.content || '';
+  async function showEntry(entry) {
+    // Fetch full content from API if entry has an ID
+    let fullEntry = entry;
+    if (entry.id) {
+      try {
+        const res = await fetch(`/api/journal/${entry.id}`);
+        if (res.ok) {
+          fullEntry = await res.json();
+        }
+      } catch (e) {
+        console.error('Failed to fetch full entry:', e);
+      }
+    }
+
+    if (ui.entryModalTitle) {
+      ui.entryModalTitle.textContent = fullEntry.title || 'Journal Entry';
+    }
+
+    if (ui.entryModalBody) {
+      // Display full content with proper formatting and scrolling
+      const content = fullEntry.content || '';
+      const tags = fullEntry.tags && fullEntry.tags.length ? fullEntry.tags.join(', ') : '';
+      const metadata = fullEntry.metadata ? JSON.stringify(fullEntry.metadata, null, 2) : '';
+
+      ui.entryModalBody.innerHTML = `
+        <div class="entry-full-content">
+          <pre class="entry-content-text">${escapeHtml(content)}</pre>
+        </div>
+        ${tags ? `<div class="entry-tags"><strong>Tags:</strong> ${escapeHtml(tags)}</div>` : ''}
+        ${metadata ? `<div class="entry-metadata"><strong>Metadata:</strong><pre>${escapeHtml(metadata)}</pre></div>` : ''}
+      `;
+    }
+
     if (ui.entryModal) ui.entryModal.classList.add('active');
   }
 
@@ -1612,6 +1653,61 @@
     }
   }
 
+  // ==================== Activity Feed ====================
+
+  function formatActivityTime(timestamp) {
+    if (!timestamp) return '';
+    try {
+      const date = new Date(timestamp);
+      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    } catch (e) {
+      return '';
+    }
+  }
+
+  function updateCurrentAction(action) {
+    const el = document.getElementById('current-action');
+    const textEl = document.getElementById('current-action-text');
+    if (!el) return;
+
+    if (action && action.tool_name) {
+      if (textEl) {
+        textEl.textContent = `${action.tool_name}${action.description ? ': ' + action.description : ''}`;
+      }
+      el.classList.add('active');
+    } else {
+      if (textEl) textEl.textContent = 'Idle';
+      el.classList.remove('active');
+    }
+  }
+
+  function updateActivityFeed(logs) {
+    const feed = document.getElementById('activity-feed');
+    const countBadge = document.getElementById('activity-count');
+    if (!feed) return;
+
+    if (countBadge) countBadge.textContent = logs ? logs.length : 0;
+
+    if (!logs || logs.length === 0) {
+      feed.innerHTML = '<div class="activity-empty">Waiting for agent activity...</div>';
+      return;
+    }
+
+    feed.innerHTML = logs.slice(0, 8).map(log => {
+      const category = log.category || 'system';
+      const message = log.message || '';
+      const displayMsg = message.length > 80 ? message.substring(0, 77) + '...' : message;
+      const time = formatActivityTime(log.timestamp);
+
+      return `
+        <div class="activity-item ${escapeHtml(category)}">
+          <span class="activity-msg">${escapeHtml(displayMsg)}</span>
+          <span class="activity-time">${escapeHtml(time)}</span>
+        </div>
+      `;
+    }).join('');
+  }
+
   // ==================== WebSocket ====================
 
   function connectWebSocket() {
@@ -1645,6 +1741,16 @@
           if (payload.queued_prompts) {
             state.queuedPrompts = payload.queued_prompts;
             renderPromptQueue();
+          }
+
+          // Update activity feed from WebSocket
+          if (payload.recent_logs) {
+            updateActivityFeed(payload.recent_logs);
+          }
+
+          // Update current action indicator
+          if (payload.current_action !== undefined) {
+            updateCurrentAction(payload.current_action);
           }
         }
       } catch (error) {
